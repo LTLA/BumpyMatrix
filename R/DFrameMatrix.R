@@ -76,7 +76,7 @@ setMethod("[", "BumpyDFrameMatrix", function(x, i, j, k, ..., .dropk=drop, drop=
             output <- output[,k,drop=.dropk]
         } else {
             sub <- undim(output)[,k,drop=.dropk]
-            if (is(sub, "BumpySplitDFrameList")) {
+            if (is(sub, "CompressedSplitDFrameList")) {
                 output@data <- sub
             } else {
                 output <- BumpyMatrix(sub, dim(output), dimnames=dimnames(output))
@@ -105,7 +105,7 @@ setReplaceMethod("[", c("BumpyDFrameMatrix", "ANY", "ANY", "BumpyMatrix"), funct
     if (missing(k)) {
         callNextMethod(x, i=i, j=j, ..., value=value)
     } else {
-        if (missing(i) && missing(k)) {
+        if (missing(i) && missing(j)) {
             x@data[,k] <- undim(value)
         } else {
             # TODO: avoid instantiating the entire Matrix.
