@@ -13,6 +13,7 @@
 \alias{Math,BumpyAtomicMatrix-method}
 \alias{Math2,BumpyAtomicMatrix-method}
 \alias{Summary,BumpyAtomicMatrix-method}
+\alias{range,BumpyAtomicMatrix-method}
 \alias{mean,BumpyAtomicMatrix-method}
 \alias{sd,BumpyAtomicMatrix-method}
 \alias{median,BumpyAtomicMatrix-method}
@@ -50,23 +51,26 @@ In the following code snippets, \code{x} is a BumpyDFrameMatrix.
 
 Binary and unary operations are implemented by specializing \link{Ops}, \link{Math} and related group generics,
 and will usually return a new BumpyAtomicMatrix of the appropriate type.
-The exception is for certain \link{Summary} methods that return an ordinary matrix,
-where the operation is guaranteed to return a scalar for each entry of the input BumpyAtomicMatrix (e.g., \code{\link{min}}).
+The exception is for \link{Summary} methods like \code{max} and \code{min};
+these return an ordinary matrix where each entry contains a scalar value for the corresponding entry of \code{x}.
+Furthermore, \code{range} will return a 3-dimensional array containing the minimum and maximum for each entry of \code{x}.
 
 Common mathematical operations are implemented that apply to each entry of the BumpyAtomicMatrix:
 \itemize{
-\item \code{mean}, \code{sd}, \code{median}, \code{mad} and \code{var} take a single BumpyAtomicMatrix
-and return an ordinary matrix of the same dimensions containing the computed statistic for each entry of the input.
+\item \code{mean}, \code{sd}, \code{median}, \code{mad}, \code{var} and \code{IQR} take a single BumpyAtomicMatrix
+and return an ordinary double-precision matrix of the same dimensions containing the computed statistic for each entry of the input.
 This is possible as all operations are guaranteed to produce a scalar.
+\item \code{quantile} takes a single BumpyAtomicMatrix as input and return a 3-dimensional array.
+The first dimension contains the requested quantiles, the second dimension corresponds to the rows of \code{x} 
+and the third dimension corresponds to the columns of \code{x}.
 \item \code{which.max} and \code{which.min} take a single BumpyAtomicMatrix
-and return a BumpyIntegerMatrix of the same dimensions containing zero or 1 integer indices for the min/max value.
+and return an ordinary integer matrix of the same dimensions containing the index for the min/max value per entry.
+(This is set to \code{NA} if the entry of the input has length zero.)
 \item \code{pmin}, \code{pmax}, \code{pmin.int} and \code{pmax.int} take multiple BumpyAtomicMatrix objects of the same dimensions,
-and return a BumpyAtomicMatrix containing the maximum/minimum value across all objects for the same entry. 
+and return a BumpyAtomicMatrix containing the result of running the same function across corresponding entries of the input objects.
 \item \code{cor}, \code{cov} and (optionally) \code{var} take two BumpyAtomicMatrix objects of the same dimensions,
 and return an ordinary matrix containing the computed statistic for the corresponding entries of the inputs. 
 This is possible as all operations are guaranteed to produce a scalar.
-\item \code{quantile} and \code{IQR} take a single BumpyAtomicMatrix as input 
-and return a BumpyNumericMatrix of the same dimensions, containing the vector of statistics.
 }
 
 Additionally, common operations are implemented that apply to each entry of the BumpyCharacterMatrix

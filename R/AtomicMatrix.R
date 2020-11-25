@@ -8,23 +8,26 @@
 #'
 #' Binary and unary operations are implemented by specializing \link{Ops}, \link{Math} and related group generics,
 #' and will usually return a new BumpyAtomicMatrix of the appropriate type.
-#' The exception is for certain \link{Summary} methods that return an ordinary matrix,
-#' where the operation is guaranteed to return a scalar for each entry of the input BumpyAtomicMatrix (e.g., \code{\link{min}}).
+#' The exception is for \link{Summary} methods like \code{max} and \code{min};
+#' these return an ordinary matrix where each entry contains a scalar value for the corresponding entry of \code{x}.
+#' Furthermore, \code{range} will return a 3-dimensional array containing the minimum and maximum for each entry of \code{x}.
 #' 
 #' Common mathematical operations are implemented that apply to each entry of the BumpyAtomicMatrix:
 #' \itemize{
-#' \item \code{mean}, \code{sd}, \code{median}, \code{mad} and \code{var} take a single BumpyAtomicMatrix
-#' and return an ordinary matrix of the same dimensions containing the computed statistic for each entry of the input.
+#' \item \code{mean}, \code{sd}, \code{median}, \code{mad}, \code{var} and \code{IQR} take a single BumpyAtomicMatrix
+#' and return an ordinary double-precision matrix of the same dimensions containing the computed statistic for each entry of the input.
 #' This is possible as all operations are guaranteed to produce a scalar.
+#' \item \code{quantile} takes a single BumpyAtomicMatrix as input and return a 3-dimensional array.
+#' The first dimension contains the requested quantiles, the second dimension corresponds to the rows of \code{x} 
+#' and the third dimension corresponds to the columns of \code{x}.
 #' \item \code{which.max} and \code{which.min} take a single BumpyAtomicMatrix
-#' and return a BumpyIntegerMatrix of the same dimensions containing zero or 1 integer indices for the min/max value.
+#' and return an ordinary integer matrix of the same dimensions containing the index for the min/max value per entry.
+#' (This is set to \code{NA} if the entry of the input has length zero.)
 #' \item \code{pmin}, \code{pmax}, \code{pmin.int} and \code{pmax.int} take multiple BumpyAtomicMatrix objects of the same dimensions,
-#' and return a BumpyAtomicMatrix containing the maximum/minimum value across all objects for the same entry. 
+#' and return a BumpyAtomicMatrix containing the result of running the same function across corresponding entries of the input objects.
 #' \item \code{cor}, \code{cov} and (optionally) \code{var} take two BumpyAtomicMatrix objects of the same dimensions,
 #' and return an ordinary matrix containing the computed statistic for the corresponding entries of the inputs. 
 #' This is possible as all operations are guaranteed to produce a scalar.
-#' \item \code{quantile} and \code{IQR} take a single BumpyAtomicMatrix as input 
-#' and return a BumpyNumericMatrix of the same dimensions, containing the vector of statistics.
 #' }
 #' 
 #' Additionally, common operations are implemented that apply to each entry of the BumpyCharacterMatrix
@@ -83,6 +86,7 @@
 #' Math,BumpyAtomicMatrix-method
 #' Math2,BumpyAtomicMatrix-method
 #' Summary,BumpyAtomicMatrix-method
+#' range,BumpyAtomicMatrix-method
 #'
 #' mean,BumpyAtomicMatrix-method
 #' sd,BumpyAtomicMatrix-method
@@ -152,37 +156,38 @@ setMethod("Math2", "BumpyAtomicMatrix", function(x) {
 #' @export
 setMethod("Summary", "BumpyAtomicMatrix", function(x) {
     out <- callGeneric(undim(x))
-    if (is(out, "CompressedList")) {
-        BumpyMatrix(out, dim=dim(x), dimnames=dimnames(x))
-    } else {
-        matrix(out, nrow(x), ncol(x), dimnames=dimnames(x))
-    }
+    matrix(out, nrow(x), ncol(x), dimnames=dimnames(x))
+})
+
+#' @export
+setMethod("range", "BumpyAtomicMatrix", function(x) {
+    array(range(undim(x)), c(dim(x), 2L), c(dimnames(x), list(NULL)))
 })
 
 #######################################################################
 ## The following section is derived from IRanges' AtomicList-utils.R ##
 #######################################################################
 
-.apply_matrix_out <- function(x, FUN, ..., FUN.VALUE) {
-    collected <- vapply(undim(x), FUN, ..., FUN.VALUE)
+.apply_matrix_out <- function(x, FUN, ...) {
+    collected <- FUN(undim(x), ...)
     matrix(collected, nrow(x), ncol(x), dimnames=dimnames(x))
 }
 
 #' @export
-setMethods("mean", "BumpyAtomicMatrix", function(x, ...) .apply_matrix_out(x, mean, ..., FUN.VALUE=0))
+setMethods("mean", "BumpyAtomicMatrix", function(x, ...) .apply_matrix_out(x, mean, ...))
 
 #' @export
-setMethods("sd", "BumpyAtomicMatrix", function(x, na.rm=TRUE) .apply_matrix_out(x, sd, na.rm=na.rm, FUN.VALUE=0))
+setMethods("sd", "BumpyAtomicMatrix", function(x, na.rm=TRUE) .apply_matrix_out(x, sd, na.rm=na.rm))
 
 #' @export
-setMethods("median", "BumpyAtomicMatrix", function(x, na.rm=TRUE) .apply_matrix_out(x, median, na.rm=na.rm, FUN.VALUE=0))
+setMethods("median", "BumpyAtomicMatrix", function(x, na.rm=TRUE) .apply_matrix_out(x, median, na.rm=na.rm))
 
 #' @export
 setMethod("mad", "BumpyAtomicMatrix", function(x, center=median(x), constant=1.4826, na.rm=FALSE, low=FALSE, high=FALSE) {
     if (!missing(center)) {
         stop("'center' argument is not currently supported")
     }
-    .apply_matrix_out(x, constant=constant, na.rm=na.rm, low=low, high=high, FUN.VALUE=0)
+    .apply_matrix_out(x, mad, constant=constant, na.rm=na.rm, low=low, high=high)
 })
 
 #' @export
@@ -190,25 +195,23 @@ setMethod("var", c("BumpyAtomicMatrix", "missing"), function(x, y=NULL, na.rm=FA
     if (missing(use)) {
         use <- ifelse(na.rm, "na.or.complete", "everything")
     }
-    .apply_matrix_out(x, var, na.rm=na.rm, use=use, FUN.VALUE=0)
+    .apply_matrix_out(x, var, na.rm=na.rm, use=use)
 })
 
-.apply_matrix_out_compressed <- function(x, FUN, ..., .CONSTRUCTOR) {
-    BumpyMatrix(.CONSTRUCTOR(lapply(undim(x), FUN, ...)), dim(x), dimnames=dimnames(x))
-}
+#' @export
+setMethods("which.min", "BumpyAtomicMatrix", function(x) .apply_matrix_out(x, which.min))
 
 #' @export
-setMethods("which.min", "BumpyAtomicMatrix", function(x) .apply_matrix_out_compressed(x, which.min, .CONSTRUCTOR=IntegerList))
+setMethods("which.max", "BumpyAtomicMatrix", function(x) .apply_matrix_out(x, which.max))
 
 #' @export
-setMethods("which.max", "BumpyAtomicMatrix", function(x) .apply_matrix_out_compressed(x, which.max, .CONSTRUCTOR=IntegerList))
+setMethod("IQR", "BumpyAtomicMatrix", function(x, na.rm=FALSE, type=7) .apply_matrix_out(x, IQR, na.rm=na.rm, type=type))
 
 #' @export
-setMethod("quantile", "BumpyAtomicMatrix", function(x, ...) .apply_matrix_out_compressed(x, quantile, ..., .CONSTRUCTOR=NumericList))
-
-#' @export
-setMethod("IQR", "BumpyAtomicMatrix", function(x, na.rm=FALSE, type=7) 
-    .apply_matrix_out_compressed(x, IQR, na.rm=na.rm, type=type, .CONSTRUCTOR=NumericList))
+setMethod("quantile", "BumpyAtomicMatrix", function(x, ...) {
+    out <- quantile(undim(x), ...) 
+    array(out, c(nrow(x), dim(x)), c(list(rownames(out)), dimnames(x)))
+})
 
 .apply_matrix_out_pm <- function(..., FUN, MoreArgs=list()) {
     args <- list(...)
@@ -222,16 +225,16 @@ setMethod("IQR", "BumpyAtomicMatrix", function(x, na.rm=FALSE, type=7)
 }
 
 #' @export
-setMethod("pmax", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out(..., FUN=pmax, MoreArgs = list(na.rm = na.rm)))
+setMethod("pmax", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out_pm(..., FUN=pmax, MoreArgs = list(na.rm = na.rm)))
 
 #' @export
-setMethod("pmax.int", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out(..., FUN=pmax.int, MoreArgs = list(na.rm = na.rm)))
+setMethod("pmax.int", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out_pm(..., FUN=pmax.int, MoreArgs = list(na.rm = na.rm)))
 
 #' @export
-setMethod("pmin", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out(..., FUN=pmin, MoreArgs = list(na.rm = na.rm)))
+setMethod("pmin", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out_pm(..., FUN=pmin, MoreArgs = list(na.rm = na.rm)))
 
 #' @export
-setMethod("pmin.int", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out(..., FUN=pmin.int, MoreArgs = list(na.rm = na.rm)))
+setMethod("pmin.int", "BumpyAtomicMatrix", function(..., na.rm = FALSE) .apply_matrix_out_pm(..., FUN=pmin.int, MoreArgs = list(na.rm = na.rm)))
 
 .apply_matrix_out_dual <- function(x, y, FUN, ...) {
     if (!identical(dim(x), dim(y))) {
@@ -278,7 +281,7 @@ setMethod("nchar", "BumpyCharacterMatrix", function(x) {
 
 #' @export
 setMethod("substring", "BumpyCharacterMatrix", function(text, first, last = 1000000L) {
-    BumpyMatrix(substring(undim(x), first, last), dim(x), dimnames=dimnames(x))
+    BumpyMatrix(substring(undim(text), first, last), dim(text), dimnames=dimnames(text))
 })
 
 #' @export
