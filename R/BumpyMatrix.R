@@ -97,9 +97,14 @@
 #' @docType class
 #' @aliases
 #' BumpyMatrix-class
+#' initialize,BumpyMatrix-method
 #' show,BumpyMatrix-method
 #' [,BumpyMatrix,ANY,ANY,ANY-method
-#' [<-.BumpyMatrix,ANY,ANY,BumpyMatrix-method
+#' [,BumpyMatrix,ANY-method
+#' [,BumpyMatrix,BumpyMatrix-method
+#' [<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method
+#' dimnames,BumpyMatrix-method
+#' dimnames<-,BumpyMatrix-method
 #' rbind,BumpyMatrix-method
 #' cbind,BumpyMatrix-method
 #' t,BumpyMatrix-method

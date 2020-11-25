@@ -19,6 +19,7 @@
 \alias{median,BumpyAtomicMatrix-method}
 \alias{mad,BumpyAtomicMatrix-method}
 \alias{var,BumpyAtomicMatrix,missing-method}
+\alias{IQR,BumpyAtomicMatrix-method}
 \alias{which.min,BumpyAtomicMatrix-method}
 \alias{which.max,BumpyAtomicMatrix-method}
 \alias{pmin,BumpyAtomicMatrix-method}
@@ -28,6 +29,7 @@
 \alias{var,BumpyAtomicMatrix,BumpyAtomicMatrix-method}
 \alias{cov,BumpyAtomicMatrix,BumpyAtomicMatrix-method}
 \alias{cor,BumpyAtomicMatrix,BumpyAtomicMatrix-method}
+\alias{quantile,BumpyAtomicMatrix-method}
 \alias{unstrsplit,BumpyCharacterMatrix-method}
 \alias{nchar,BumpyCharacterMatrix-method}
 \alias{substring,BumpyCharacterMatrix-method}

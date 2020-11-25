@@ -4,9 +4,14 @@
 \name{BumpyMatrix}
 \alias{BumpyMatrix}
 \alias{BumpyMatrix-class}
+\alias{initialize,BumpyMatrix-method}
 \alias{show,BumpyMatrix-method}
 \alias{[,BumpyMatrix,ANY,ANY,ANY-method}
-\alias{[<-.BumpyMatrix,ANY,ANY,BumpyMatrix-method}
+\alias{[,BumpyMatrix,ANY-method}
+\alias{[,BumpyMatrix,BumpyMatrix-method}
+\alias{[<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method}
+\alias{dimnames,BumpyMatrix-method}
+\alias{dimnames<-,BumpyMatrix-method}
 \alias{rbind,BumpyMatrix-method}
 \alias{cbind,BumpyMatrix-method}
 \alias{t,BumpyMatrix-method}

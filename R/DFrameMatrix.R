@@ -13,7 +13,7 @@
 #' \code{x[i, j, k, ..., .dropk=drop, drop=TRUE]} will subset the BumpyDFrameMatrix:
 #' \itemize{
 #' \item If \code{k} is not specified, this will either produce another BumpyDFrameMatrix corresponding to the specified submatrix,
-#' or a \linkS4class{BumpySplitDFrameList} containing the entries of interest if \code{drop=TRUE}.
+#' or a \linkS4class{CompressedSplitDFrameList} containing the entries of interest if \code{drop=TRUE}.
 #' \item If \code{k} is specified, it should contain the names or indices of the columns of the underlying DataFrame to retain.
 #' For multiple fields or with \code{.dropk=FALSE}, a new BumpyDFrameMatrix is returned with the specified columns in the DataFrame.
 #' \item If \code{k} only specifies a single column and \code{.dropk=TRUE},
@@ -56,9 +56,14 @@
 #' @aliases
 #' BumpyDFrameMatrix-class
 #' show,BumpyDFrameMatrix-method
+#' fields
+#' fields,BumpyDFrameMatrix-method
+#' fields<-
+#' fields<-,BumpyDFrameMatrix-method
+#' [,BumpyDFrameMatrix,ANY-method
 #' [,BumpyDFrameMatrix,ANY,ANY,ANY-method
 #' [,BumpyDFrameMatrix,BumpyMatrix-method
-#' [<-,BumpyDFrameMatrix,BumpyMatrix-method
+#' [<-,BumpyDFrameMatrix,ANY,ANY,BumpyMatrix-method
 NULL
 
 #' @export

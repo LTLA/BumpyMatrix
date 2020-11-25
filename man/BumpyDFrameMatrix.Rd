@@ -5,9 +5,14 @@
 \alias{BumpyDFrameMatrix}
 \alias{BumpyDFrameMatrix-class}
 \alias{show,BumpyDFrameMatrix-method}
+\alias{fields}
+\alias{fields,BumpyDFrameMatrix-method}
+\alias{fields<-}
+\alias{fields<-,BumpyDFrameMatrix-method}
+\alias{[,BumpyDFrameMatrix,ANY-method}
 \alias{[,BumpyDFrameMatrix,ANY,ANY,ANY-method}
 \alias{[,BumpyDFrameMatrix,BumpyMatrix-method}
-\alias{[<-,BumpyDFrameMatrix,BumpyMatrix-method}
+\alias{[<-,BumpyDFrameMatrix,ANY,ANY,BumpyMatrix-method}
 \title{The BumpyDFrameMatrix class}
 \description{
 The BumpyDFrameMatrix provides a two-dimensional object where each entry is a \linkS4class{DataFrame}.
@@ -23,7 +28,7 @@ This can be modified with \code{fields(x) <- value}.
 \code{x[i, j, k, ..., .dropk=drop, drop=TRUE]} will subset the BumpyDFrameMatrix:
 \itemize{
 \item If \code{k} is not specified, this will either produce another BumpyDFrameMatrix corresponding to the specified submatrix,
-or a \linkS4class{BumpySplitDFrameList} containing the entries of interest if \code{drop=TRUE}.
+or a \linkS4class{CompressedSplitDFrameList} containing the entries of interest if \code{drop=TRUE}.
 \item If \code{k} is specified, it should contain the names or indices of the columns of the underlying DataFrame to retain.
 For multiple fields or with \code{.dropk=FALSE}, a new BumpyDFrameMatrix is returned with the specified columns in the DataFrame.
 \item If \code{k} only specifies a single column and \code{.dropk=TRUE},

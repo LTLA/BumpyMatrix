@@ -93,6 +93,7 @@
 #' median,BumpyAtomicMatrix-method
 #' mad,BumpyAtomicMatrix-method
 #' var,BumpyAtomicMatrix,missing-method
+#' IQR,BumpyAtomicMatrix-method
 #' which.min,BumpyAtomicMatrix-method
 #' which.max,BumpyAtomicMatrix-method
 #' pmin,BumpyAtomicMatrix-method
@@ -102,6 +103,7 @@
 #' var,BumpyAtomicMatrix,BumpyAtomicMatrix-method
 #' cov,BumpyAtomicMatrix,BumpyAtomicMatrix-method
 #' cor,BumpyAtomicMatrix,BumpyAtomicMatrix-method
+#' quantile,BumpyAtomicMatrix-method
 #'
 #' unstrsplit,BumpyCharacterMatrix-method
 #' nchar,BumpyCharacterMatrix-method
