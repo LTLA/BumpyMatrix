@@ -1,0 +1,178 @@
+---
+title: Using BumpyMatrix objects
+author:
+- name: Aaron Lun
+  email: luna@gene.com
+  affiliation: gRED B&CB
+package: BumpyMatrix
+date: "Revised: November 25, 2020"
+output:
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{BumpyMatrix}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(error=FALSE, warning=FALSE, message=FALSE)
+library(BiocStyle)
+set.seed(0)
+```
+
+# Overview
+
+The `BumpyMatrix` class is a two-dimensional object where each entry contains a non-scalar object of constant type/class but variable length.
+This can be considered to be raggedness in the third dimension, i.e., "bumpiness".
+The `BumpyMatrix` is intended to represent complex data that has zero-to-many mappings between individual data points and each feature/sample,
+allowing us to store it in Bioconductor's standard 2-dimensional containers such as the `SummarizedExperiment`.
+One example could be to store transcript coordinates for highly multiplexed FISH data;
+the dimensions of the `BumpyMatrix` can represent genes and cells while each entry is a data frame with the relevant x/y coordinates.
+
+# Construction
+
+A variety of `BumpyMatrix` subclasses are implemented but the most interesting is probably the `BumpyDFrameMatrix`.
+This is an S4 matrix class where each entry is a `DFrame` object, i.e., Bioconductor's wrapper around the `data.frame`.
+To demonstrate, let's mock up some data for our hypothetical FISH experiment:
+
+```{r}
+library(S4Vectors)
+df <- DataFrame(
+    x=rnorm(10000), y=rnorm(10000), 
+    gene=paste0("GENE_", sample(100, 10000, replace=TRUE)),
+    cell=paste0("CELL_", sample(20, 10000, replace=TRUE))
+)
+df 
+```
+
+We then use the `splitToBumpyMatrix()` utility to easily create our `BumpyDFrameMatrix` based on the variables on the x- and y-axes.
+Here, each row is a gene, each column is a cell, and each entry holds all coordinates for that gene/cell combination.
+
+```{r}
+library(BumpyMatrix)
+mat <- splitToBumpyMatrix(df[,c("x", "y")], row=df$gene, column=df$cell)
+mat
+mat[1,1][[1]]
+```
+
+# Basic operations
+
+The `BumpyMatrix` implements many of the standard matrix operations, e.g., `nrow()`, `dimnames()`, the combining methods and transposition.
+
+```{r}
+dim(mat)
+dimnames(mat)
+rbind(mat, mat)
+cbind(mat, mat)
+t(mat)
+```
+
+Subsetting will yield a new `BumpyMatrix` object corresponding to the specified submatrix.
+If the returned submatrix has a dimension of length 1 and `drop=TRUE`, the underlying `CompressedList` of values (in this case, the list of `DFrame`s) is returned.
+
+```{r}
+mat[c("GENE_2", "GENE_20"),]
+mat[,1:5]
+mat["GENE_10",]
+```
+
+For `BumpyDFrameMatrix` objects, we have an additional third index that allows us to easily extract an individual column of each `DFrame` into a new `BumpyMatrix`.
+In the example below, we extract the x-coordinate into a new `BumpyNumericMatrix`:
+
+```{r}
+out.x <- mat[,,"x"]
+out.x
+out.x[,1]
+```
+
+Common arithmetic and logical operations are already implemented for `BumpyNumericMatrix` subclasses.
+Almost all of these operations will act on each entry of the input object (or corresponding entries, for multiple inputs) 
+and produce a new `BumpyMatrix` of the appropriate type.
+
+```{r}
+pos <- out.x > 0
+pos[,1]
+shift <- 10 * out.x + 1
+shift[,1]
+out.y <- mat[,,"y"]
+greater <- out.x < out.y
+greater[,1]
+diff <- out.y - out.x
+diff[,1]
+```
+
+# Advanced subsetting
+
+When subsetting a `BumpyMatrix`, we can use another `BumpyMatrix` containing indexing information for each entry.
+Consider the following code chunk:
+
+```{r}
+i <- mat[,,'x'] > 0 & mat[,,'y'] > 0
+i
+i[,1]
+sub <- mat[i]
+sub
+sub[,1]
+```
+
+Here, `i` is a `BumpyLogicalMatrix` where each entry is a logical vector.
+When we do `x[i]`, we effectively loop over the corresponding entries of `x` and `i`, using the latter to subset the `DFrame` in the former.
+This produces a new `BumpyDFrameMatrix` containing, in this case, only the observations with positive x- and y-coordinates.
+
+For `BumpyDFrameMatrix` objects, subsetting to a single field in the third dimension will automatically drop to the type of the underlying column of the `DFrame`.
+This can be stopped with `drop=FALSE` to preserve the `BumpyDFrameMatrix` output:
+
+```{r}
+mat[,,'x']
+mat[,,'x',drop=FALSE]
+```
+
+In situations where we want to drop the third dimension but not the first two dimensions (or vice versa), we use the `.dropk` argument.
+Setting `.dropk=FALSE` will ensure that the third dimension is not dropped, as shown below:
+
+```{r}
+mat[1,1,'x']
+mat[1,1,'x',.dropk=FALSE]
+mat[1,1,'x',drop=FALSE]
+mat[1,1,'x',.dropk=TRUE,drop=FALSE]
+```
+
+Subset replacement is also supported, which is most useful for operations to modify specific fields:
+
+```{r}
+copy <- mat
+copy[,,'x'] <- copy[,,'x'] * 20
+copy[,1]
+```
+
+# Additional operations
+
+Some additional statistical operations are also implemented that will usually produce an ordinary matrix.
+Here, each entry corresponds to the statistic computed from the corresponding entry of the `BumpyMatrix`.
+
+```{r}
+mean(out.x)[1:5,1:5] # matrix
+var(out.x)[1:5,1:5] # matrix
+```
+
+The exception is with operations that naturally produce a vector, in which case a matching 3-dimensional array is returned:
+
+```{r}
+quantile(out.x)[,1:5,1:2]
+range(out.x)[1:5,1:5,]
+```
+
+Other operations may return another `BumpyMatrix` if the output length is variable:
+
+```{r}
+pmax(out.x, out.y) 
+```
+
+`BumpyCharacterMatrix` objects also have their own methods for `grep()`, `tolower()`, etc. to manipulate the strings in a convenient manner.
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```
