@@ -212,7 +212,7 @@ setMethod("IQR", "BumpyAtomicMatrix", function(x, na.rm=FALSE, type=7) .apply_ma
 #' @export
 setMethod("quantile", "BumpyAtomicMatrix", function(x, ...) {
     out <- quantile(undim(x), ...) 
-    array(out, c(nrow(x), dim(x)), c(list(rownames(out)), dimnames(x)))
+    array(out, c(nrow(out), dim(x)), c(list(rownames(out)), dimnames(x)))
 })
 
 .apply_matrix_out_pm <- function(..., FUN, MoreArgs=list()) {
