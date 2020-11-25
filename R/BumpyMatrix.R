@@ -128,10 +128,10 @@ setValidity("BumpyMatrix", function(object) {
     }
 
     if (!is.null(rownames(object)) && length(rownames(object))!=nrow(object)) {
-        msg <- c(msg, "'rownames(object)' should be NULL or equal to 'nrow(object)'")
+        msg <- c(msg, "'rownames(object)' should be NULL or have length equal to 'nrow(object)'")
     }
     if (!is.null(colnames(object)) && length(colnames(object))!=ncol(object)) {
-        msg <- c(msg, "'colnames(object)' should be NULL or equal to 'ncol(object)'")
+        msg <- c(msg, "'colnames(object)' should be NULL or have length equal to 'ncol(object)'")
     }
 
     if (length(msg)) {
@@ -147,6 +147,16 @@ setMethod("show", "BumpyMatrix", function(object) {
 
 #' @export
 setMethod("dimnames", "BumpyMatrix", function(x) x@dimnames)
+
+#' @export
+setReplaceMethod("dimnames", "BumpyMatrix", function(x, value) {
+    if (is.null(value)) {
+        value <- list(NULL, NULL)
+    }
+    x@dimnames <- value
+    validObject(x)
+    x
+})
 
 #' @export
 setMethod("unlist", "BumpyMatrix", function(x, recursive = TRUE, use.names = TRUE) {
@@ -279,7 +289,7 @@ setMethod("cbind", "BumpyMatrix", function(..., deparse.level=1) {
 
 #' @export
 setMethod("t", "BumpyMatrix", function(x) {
-    o <- matrix(seq_len(nrow(x)*ncol(x)), ncol(x), nrow(x), dimnames=dimnames(x), byrow=TRUE)
+    o <- matrix(seq_len(nrow(x)*ncol(x)), ncol(x), nrow(x), byrow=TRUE)
     x@data <- undim(x)[as.vector(o)]
     x@dim <- rev(x@dim)
     x@dimnames <- rev(x@dimnames)
