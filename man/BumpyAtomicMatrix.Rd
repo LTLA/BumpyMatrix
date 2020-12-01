@@ -3,6 +3,7 @@
 \name{BumpyAtomicMatrix}
 \alias{BumpyAtomicMatrix}
 \alias{BumpyAtomicMatrix-class}
+\alias{show,BumpyAtomicMatrix-method}
 \alias{BumpyIntegerMatrix-class}
 \alias{BumpyCharacterMatrix-class}
 \alias{BumpyNumericMatrix-class}

@@ -68,9 +68,16 @@
 NULL
 
 #' @export
+#' @importFrom utils capture.output
 setMethod("show", "BumpyDFrameMatrix", function(object) {
     callNextMethod()
-    coolcat("fields(%i): %s", vals=colnames(unlist(object)))    
+    if (nrow(object) && ncol(object)) {
+        first <- object[1,1,.dropk=FALSE][[1]]
+        cat("preview [1,1]:\n")
+        info <- capture.output(show(first))
+        info <- paste0("  ", info)
+        cat(info, sep="\n")
+    }
 })
 
 #' @export

@@ -75,6 +75,7 @@
 #' 
 #' @aliases
 #' BumpyAtomicMatrix-class
+#' show,BumpyAtomicMatrix-method
 #' BumpyIntegerMatrix-class
 #' BumpyCharacterMatrix-class
 #' BumpyNumericMatrix-class
@@ -120,6 +121,18 @@
 #'
 #' @name BumpyAtomicMatrix
 NULL
+
+#' @export
+#' @importFrom utils str
+setMethod("show", "BumpyAtomicMatrix", function(object) {
+    callNextMethod()
+    if (nrow(object) && ncol(object)) {
+        cat("preview [1,1]:\n")
+        first <- object[1,1][[1]]
+        cat(" ")
+        str(first)
+    }
+})
 
 #' @export
 setMethod("Ops", c("BumpyAtomicMatrix", "BumpyAtomicMatrix"), function(e1, e2) {

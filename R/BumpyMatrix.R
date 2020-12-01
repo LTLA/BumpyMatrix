@@ -60,7 +60,7 @@
 #' @examples
 #' # Mocking up a BumpyNumericList:
 #' library(IRanges)
-#' x <- NumericList(split(runif(1000), factor(sample(20, 50, replace=TRUE), 1:50)))  
+#' x <- NumericList(split(runif(1000), factor(sample(50, 1000, replace=TRUE), 1:50)))  
 #' length(x)
 #'
 #' # Creating a BumpyNumericMatrix:
@@ -166,9 +166,23 @@ setValidity("BumpyMatrix", function(object) {
     TRUE
 })
 
+#' @export
 setMethod("show", "BumpyMatrix", function(object) {
-    # TODO: think about adding some more detail to preview here.
     cat(sprintf("%i x %i %s\n", nrow(object), ncol(object), class(object)[1])) 
+
+    if (!is.null(rownames(object))) {
+        lbls <- paste(S4Vectors:::selectSome(rownames(object)), collapse = " ")
+    } else {
+        lbls <- "NULL"
+    }
+    cat("rownames:", lbls, "\n")
+
+    if (!is.null(colnames(object))) {
+        lbls <- paste(S4Vectors:::selectSome(colnames(object)), collapse = " ")
+    } else {
+        lbls <- "NULL"
+    }
+    cat("colnames:", lbls, "\n")
 })
 
 #' @export

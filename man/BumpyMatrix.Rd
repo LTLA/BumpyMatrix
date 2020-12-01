@@ -89,7 +89,7 @@ This is the same as \code{unlist(undim(x), ...)}.
 \examples{
 # Mocking up a BumpyNumericList:
 library(IRanges)
-x <- NumericList(split(runif(1000), factor(sample(20, 50, replace=TRUE), 1:50)))  
+x <- NumericList(split(runif(1000), factor(sample(50, 1000, replace=TRUE), 1:50)))  
 length(x)
 
 # Creating a BumpyNumericMatrix:

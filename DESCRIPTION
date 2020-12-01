@@ -13,6 +13,7 @@ Description: Implements the BumpyMatrix class and several subclasses
 Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com")
 License: Genentech, Inc.
 Imports:
+    utils,
     methods,
     Matrix,
     S4Vectors,
