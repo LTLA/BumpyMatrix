@@ -1,5 +1,5 @@
 #' @export
-setClass("BumpyMatrix", contains="VIRTUAL", slots=c(data="CompressedList", dim="integer", dimnames="list"))
+setClass("BumpyMatrix", contains="VIRTUAL", slots=c(data="CompressedList", proxy="ANY"))
 
 #' @export
 setClass("BumpyAtomicMatrix", contains="BumpyMatrix", slots=c(data="CompressedAtomicList"))

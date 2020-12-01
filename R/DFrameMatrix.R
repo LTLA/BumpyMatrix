@@ -63,6 +63,7 @@
 #' [,BumpyDFrameMatrix,ANY-method
 #' [,BumpyDFrameMatrix,ANY,ANY,ANY-method
 #' [,BumpyDFrameMatrix,BumpyMatrix-method
+#' [,BumpyDFrameMatrix,BumpyMatrix,ANY,ANY-method
 #' [<-,BumpyDFrameMatrix,ANY,ANY,BumpyMatrix-method
 NULL
 
@@ -84,7 +85,7 @@ setMethod("[", "BumpyDFrameMatrix", function(x, i, j, k, ..., .dropk=drop, drop=
             if (is(sub, "CompressedSplitDFrameList")) {
                 output@data <- sub
             } else {
-                output <- BumpyMatrix(sub, dim(output), dimnames=dimnames(output))
+                output <- BumpyMatrix(sub, proxy=output@proxy, reorder=FALSE)
             }
         }
     } 
@@ -111,18 +112,34 @@ setReplaceMethod("[", c("BumpyDFrameMatrix", "ANY", "ANY", "BumpyMatrix"), funct
         callNextMethod(x, i=i, j=j, ..., value=value)
     } else {
         if (missing(i) && missing(j)) {
+            out <- .reconcile_matrices(list(x, value))
+            x <- out[[1]]
+            value <- out[[2]]
             x@data[,k] <- undim(value)
+
         } else {
-            # TODO: avoid instantiating the entire Matrix.
-            keep <- matrix(seq_len(nrow(x)*ncol(x)), nrow(x), ncol(x), dimnames=dimnames(x))
-            if (!missing(i)) {
-                keep <- keep[i,,drop=FALSE] 
+            if (!missing(i) && !missing(j)) {
+                sub <- x[i,j,drop=FALSE]
+            } else if (!missing(i)) {
+                sub <- x[i,,drop=FALSE]
+            } else {
+                sub <- x[,j,drop=FALSE]
             }
-            if (!missing(j)) {
-                keep <- keep[,j,drop=FALSE]
+
+            out <- .reconcile_matrices(list(sub, value))
+            sub <- out[[1]]
+            value <- out[[2]]
+            sub@data[,k] <- undim(value)
+
+            if (!missing(i) && !missing(j)) {
+                x[i,j] <- sub
+            } else if (!missing(i)) {
+                x[i,] <- sub
+            } else {
+                x[,j] <- sub
             }
-            x@data[as.integer(keep),k] <- undim(value)
         }
+
         x 
     }
 })

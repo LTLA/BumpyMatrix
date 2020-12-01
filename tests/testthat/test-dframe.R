@@ -1,5 +1,5 @@
 # This tests the functionality of the DFrameMatrix.
-# library(testthat); library(BumpyMatrix); source("test-dframe.R")
+# library(testthat); library(BumpyMatrix); source("setup.R"); source("test-dframe.R")
 
 library(S4Vectors)
 df <- DataFrame(x=runif(100), y=runif(100))
@@ -75,4 +75,35 @@ test_that("DF subset replacement works as expected", {
     expect_identical(undim(copy[,,'x'])[idx], out[,'x'][idx]*2)
     idx <- 2 + (0:3) * nrow(mat)
     expect_identical(undim(copy[,,'x'])[idx], out[,'x'][idx])
+})
+
+test_that("everything works with sparse proxies", {
+    smat <- .create_sparse_bumpy_matrix(out[1:8], c(5, 4))
+    ref.smat <- .promote_to_dense(smat)
+
+    # Subsetting works as expected.
+    expect_identical(smat[,1], ref.smat[,1])
+    expect_identical(smat[1,], ref.smat[1,])
+    expect_identical(smat[,,c("y", "x")][,1], ref.smat[,,c("y", "x")][,1])
+    expect_identical(smat[,,"x"][,1], ref.smat[,,"x"][,1])
+              
+    # Subset replacement works as expected.
+    copy <- smat
+    copy[,,"x"] <- ref.smat[,,"y"]
+    expect_identical(copy[,,"x"][,1], ref.smat[,,"y"][,1])
+
+    copy <- smat
+    copy[1,,"x"] <- ref.smat[1,,"y", drop=FALSE]
+    expect_identical(copy[1,,"x"], ref.smat[1,,"y"])
+    expect_identical(copy[2,,"x"], ref.smat[2,,"x"])
+
+    copy <- smat
+    copy[,1,"x"] <- ref.smat[,1,"y", drop=FALSE]
+    expect_identical(copy[,1,"x"], ref.smat[,1,"y"])
+    expect_identical(copy[,2,"x"], ref.smat[,2,"x"])
+
+    copy <- smat
+    copy[1,1,"x"] <- ref.smat[1,1,"y", drop=FALSE]
+    expect_identical(copy[1,1,"x"], ref.smat[1,1,"y"])
+    expect_identical(copy[1,2,"x"], ref.smat[1,2,"x"])
 })

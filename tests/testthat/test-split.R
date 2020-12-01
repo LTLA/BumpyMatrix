@@ -27,3 +27,12 @@ test_that("splitToBumpyMatrix works for DF iputs", {
     expect_identical(mat["C",6][[1]], df[df$row=="C" & df$column==6,'value',drop=FALSE])
     expect_identical(mat["Z",8][[1]], df[df$row=="Z" & df$column==8,'value',drop=FALSE])
 })
+
+test_that("splitToBumpyMatrix works for sparse requests", {
+    mat <- splitToBumpyMatrix(df$value[1:100], df$row[1:100], df$column[1:100], sparse=TRUE)
+    expect_s4_class(mat@proxy, "dgCMatrix")
+
+    ref <- splitToBumpyMatrix(df$value[1:100], df$row[1:100], df$column[1:100])
+    expect_identical(ref[,1], mat[,1])
+    expect_identical(ref[1,], mat[1,])
+})

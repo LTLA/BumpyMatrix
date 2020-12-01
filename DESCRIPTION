@@ -14,6 +14,7 @@ Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com")
 License: Genentech, Inc.
 Imports:
     methods,
+    Matrix,
     S4Vectors,
     IRanges
 Suggests: 

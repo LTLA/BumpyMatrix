@@ -12,6 +12,7 @@
 \alias{[,BumpyDFrameMatrix,ANY-method}
 \alias{[,BumpyDFrameMatrix,ANY,ANY,ANY-method}
 \alias{[,BumpyDFrameMatrix,BumpyMatrix-method}
+\alias{[,BumpyDFrameMatrix,BumpyMatrix,ANY,ANY-method}
 \alias{[<-,BumpyDFrameMatrix,ANY,ANY,BumpyMatrix-method}
 \title{The BumpyDFrameMatrix class}
 \description{

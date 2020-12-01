@@ -1,5 +1,5 @@
 # This tests special operations for BumpyAtomicMatrix objects.
-# library(testthat); library(BumpyMatrix); source("test-atomic.R")
+# library(testthat); library(BumpyMatrix); source("setup.R"); source("test-atomic.R")
 
 set.seed(88888000)
 library(IRanges)
@@ -13,6 +13,9 @@ x2 <- NumericList(split(runif(50), f))
 x2 <- unname(x2)
 mat2 <- BumpyMatrix(x2, c(5,4))
 
+smat <- .create_sparse_bumpy_matrix(x[1:10], c(5, 4))
+ref.smat <- .promote_to_dense(smat)
+
 test_that("Ops work correctly", {
     # Dual operations
     output <- mat + mat2
@@ -24,12 +27,23 @@ test_that("Ops work correctly", {
 
     expect_error(mat + mat[,1:2], "same dimensions")
 
+    # Repeating this with sparse (or sparse + dense) proxies.
+    output <- smat + smat
+    expect_identical(output[,1], smat[,1] + smat[,1])
+    output <- smat + ref.smat
+    expect_identical(output[,1], ref.smat[,1] + ref.smat[,1])
+
     # One-sided ops.
     output <- mat > 0.5
     expect_identical(output[,1], mat[,1] > 0.5)
-
     output <- 1 + mat 
     expect_identical(output[,1], 1 + mat[,1])
+
+    # ... with sparse matrices.
+    output <- smat > 0.5
+    expect_identical(output[,1], smat[,1] > 0.5)
+    output <- 1 + smat 
+    expect_identical(output[,1], 1 + smat[,1])
 })
 
 test_that("Math works correctly", {
@@ -38,6 +52,13 @@ test_that("Math works correctly", {
 
     output <- round(mat)
     expect_identical(output[,1], round(mat[,1]))
+
+    # For the sparse case.
+    output <- log(smat)
+    expect_identical(output[,1], log(smat[,1]))
+
+    output <- 0 - smat
+    expect_identical(output[,1], 0 - smat[,1])
 })
 
 test_that("Summary works correctly", {
@@ -50,6 +71,10 @@ test_that("Summary works correctly", {
     output <- range(mat)
     expect_identical(output[,,1], unname(min(mat)))
     expect_identical(output[,,2], unname(max(mat)))
+
+    # Same for the sparse case.
+    expect_identical(max(smat), max(ref.smat))
+    expect_identical(range(smat), range(ref.smat))
 })
 
 test_that("numeric functions that emit matrices work correctly", {
@@ -76,6 +101,12 @@ test_that("numeric functions that emit matrices work correctly", {
     out <- quantile(mat)
     expect_identical(out[,,1], quantile(mat[,1]))
     expect_identical(out[,,4], quantile(mat[,4]))
+
+    # Same for the sparse case.
+    expect_identical(mean(smat), mean(ref.smat))
+    expect_identical(cov(smat, ref.smat), cov(ref.smat, ref.smat)) 
+    expect_identical(which.max(smat), which.max(ref.smat))
+    expect_identical(quantile(smat), quantile(ref.smat))
 })
 
 test_that("numeric functions that emit BumpyMatrices work correctly", {
@@ -88,13 +119,19 @@ test_that("numeric functions that emit BumpyMatrices work correctly", {
     COMPARE(pmin(mat, mat2), pmin(undim(mat), undim(mat2)))
     COMPARE(pmax.int(mat, mat2), pmax.int(undim(mat), undim(mat2)))
     COMPARE(pmin.int(mat, mat2), pmin.int(undim(mat), undim(mat2)))
+
+    # Handles sparse and sparse/dense hybrids.
+    expect_identical(pmax(smat, smat*2), smat*2)
+    expect_identical(pmin(smat, smat*2), smat)
+    expect_identical(pmax(smat, ref.smat*2)[,1], (ref.smat*2)[,1])
+    expect_identical(pmin(smat, ref.smat*2)[,1], ref.smat[,1])
 })
 
 test_that("string functions on BunmpyCharacterMatrices work correctly", {
     pokemon <- c("charizard", "charmander", "charmeleon", "squirtle", "blastoise",
         "wartortle", "bulbasaur", "venusaur", "ivysaur", "caterpie", "metapod", "butterfree",
         "weedle", "kakuna", "beedrill")
-    x <- CharacterList(split(sample(pokemon, 50, replace=TRUE), sample(12, 50, replace=TRUE)))
+    x <- CharacterList(split(sample(pokemon, 50, replace=TRUE), factor(sample(12, 50, replace=TRUE), 1:12)))
     x <- unname(x)
     mat <- BumpyMatrix(x, c(4, 3))
 
@@ -103,6 +140,10 @@ test_that("string functions on BunmpyCharacterMatrices work correctly", {
     expect_type(output, "character")
     expect_identical(dim(output), dim(mat))
     expect_identical(as.vector(output), unstrsplit(x, ","))
+
+    smat <- .create_sparse_bumpy_matrix(x[1:10], c(5, 4))
+    output <- unstrsplit(smat, ",")
+    expect_identical(unstrsplit(.promote_to_dense(smat), ","), output)
 
     COMPARE <- function(output, ref) {
         expect_identical(dim(output), dim(mat))

@@ -4,14 +4,15 @@
 \name{BumpyMatrix}
 \alias{BumpyMatrix}
 \alias{BumpyMatrix-class}
-\alias{initialize,BumpyMatrix-method}
 \alias{show,BumpyMatrix-method}
 \alias{[,BumpyMatrix,ANY,ANY,ANY-method}
 \alias{[,BumpyMatrix,ANY-method}
+\alias{[,BumpyMatrix,BumpyMatrix,ANY,ANY-method}
 \alias{[,BumpyMatrix,BumpyMatrix-method}
 \alias{[<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method}
+\alias{dim,BumpyMatrix-method}
 \alias{dimnames,BumpyMatrix-method}
-\alias{dimnames<-,BumpyMatrix-method}
+\alias{dimnames<-,BumpyMatrix,ANY-method}
 \alias{rbind,BumpyMatrix-method}
 \alias{cbind,BumpyMatrix-method}
 \alias{t,BumpyMatrix-method}
@@ -26,14 +27,23 @@ e.g., for inclusion as another assay in a SummarizedExperiment object.
 }
 \section{Constructor}{
 
-\code{BumpyMatrix(x, dims, dimnames=list(NULL, NULL))} will produce a DataFrameMatrix object, given:
+\code{BumpyMatrix(x, dims, dimnames=list(NULL, NULL), proxy=NULL, reorder=TRUE)} will produce a BumpyMatrix object, given:
 \itemize{
 \item \code{x}, a \linkS4class{CompressedList} object containing one or more \linkS4class{DFrame}s or atomic vectors.
 \item \code{dim}, an integer vector of length 2 specifying the dimensions of the returned object.
 \item \code{dimnames}, a list of length 2 containing the row and column names.
+\item \code{proxy}, an integer or numeric matrix-like object specifying the location of each entry of \code{x} in the output matrix.
+\item \code{reorder}, a logical scalar indicating whether \code{proxy} (if specified) should be reordered.
 }
-\code{x} should have length equal to the product of \code{dim}.
-The entries of the returned DataFrameMatrix are filled by \code{x} in a column-major manner.
+The type of the returned BumpyMatrix object is determined from the type of \code{x}.
+
+If \code{proxy=NULL}, \code{x} should have length equal to the product of \code{dim}.
+The entries of the returned BumpyMatrix are filled with \code{x} in a column-major manner.
+
+If \code{proxy} is specified, it should contain indices in \code{1:length(x)} with all other entries filled with zeros.
+If \code{reorder=FALSE}, all non-zero values should be in increasing order when encountered in column-major format;
+otherwise, the indices are resorted to enforce this expectation.
+Note that \code{dims} and \code{dimnames} are ignored.
 }
 
 \section{Basic matrix methods}{

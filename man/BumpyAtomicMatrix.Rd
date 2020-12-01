@@ -86,8 +86,7 @@ All methods implemented for the \linkS4class{BumpyMatrix} parent class are avail
 \examples{
 # Mocking up a BumpyNumericList:
 library(IRanges)
-x <- NumericList(split(runif(1000), 
-    factor(sample(50, 1000, replace=TRUE), 1:50)))  
+x <- splitAsList(runif(1000), factor(sample(50, 1000, replace=TRUE), 1:50))  
 
 # Creating a BumpyNumericMatrix:
 mat <- BumpyMatrix(x, c(10, 5))
@@ -110,13 +109,13 @@ sd(mat)
 median(mat)
 
 # Handling character vectors:
-x <- CharacterList(split(sample(LETTERS, 100, replace=TRUE), 
-    factor(sample(20, 100, replace=TRUE), 1:20)))  
+x <- splitAsList(sample(LETTERS, 100, replace=TRUE), 
+    factor(sample(20, 100, replace=TRUE), 1:20))
 cmat <- BumpyMatrix(x, c(5, 4))
 cmat[,1]
 
 tolower(cmat[,1])
-grepl("A", cmat)[,1]
-sub("A", "whee", cmat)[,1]
+grepl("A|E|I|O|U", cmat)[,1]
+sub("A|E|I|O|U", "vowel", cmat)[,1]
 
 }

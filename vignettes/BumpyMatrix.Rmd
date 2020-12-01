@@ -56,6 +56,14 @@ mat
 mat[1,1][[1]]
 ```
 
+We can also set `sparse=TRUE` to use a more efficient sparse representation, which avoids explicit storage of empty `DFrame`s.
+This may be necessary for larger datasets as there is a limit of `r .Machine$integer.max` (non-empty) entries in each `BumpyMatrix`.
+
+```{r}
+smat <- splitToBumpyMatrix(df[1:100,c("x", "y")], row=df$gene[1:100], column=df$cell[1:100])
+smat
+```
+
 # Basic operations
 
 The `BumpyMatrix` implements many of the standard matrix operations, e.g., `nrow()`, `dimnames()`, the combining methods and transposition.

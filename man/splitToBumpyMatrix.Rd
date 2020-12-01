@@ -4,7 +4,7 @@
 \alias{splitToBumpyMatrix}
 \title{Split to a BumpyMatrix}
 \usage{
-splitToBumpyMatrix(x, row, column)
+splitToBumpyMatrix(x, row, column, sparse = FALSE)
 }
 \arguments{
 \item{x}{A vector or \linkS4class{Vector} object, most typically a \linkS4class{DFrame}.}
@@ -14,6 +14,8 @@ This defines the row index for each element of \code{x}.}
 
 \item{column}{An object coercible into a factor, of length equal to \code{x}.
 This defines the column index for each element of \code{x}.}
+
+\item{sparse}{Logical scalar indicating whether a sparse representation should be used.}
 }
 \value{
 A \linkS4class{BumpyMatrix} of the appropriate type,
@@ -28,6 +30,15 @@ This facilitates the construction of a BumpyMatrix from vector-like objects.
 mat <- splitToBumpyMatrix(runif(1000), 
    row=sample(LETTERS, 1000, replace=TRUE),
    column=sample(10, 1000, replace=TRUE)
+)
+mat
+mat[,1]
+mat[1,]
+
+# Or with a sparse representation.
+mat <- splitToBumpyMatrix(runif(10), 
+   row=sample(LETTERS, 10, replace=TRUE),
+   column=sample(10, 10, replace=TRUE)
 )
 mat
 mat[,1]

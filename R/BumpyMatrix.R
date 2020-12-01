@@ -5,14 +5,23 @@
 #' e.g., for inclusion as another assay in a SummarizedExperiment object.
 #'
 #' @section Constructor:
-#' \code{BumpyMatrix(x, dims, dimnames=list(NULL, NULL))} will produce a DataFrameMatrix object, given:
+#' \code{BumpyMatrix(x, dims, dimnames=list(NULL, NULL), proxy=NULL, reorder=TRUE)} will produce a BumpyMatrix object, given:
 #' \itemize{
 #' \item \code{x}, a \linkS4class{CompressedList} object containing one or more \linkS4class{DFrame}s or atomic vectors.
 #' \item \code{dim}, an integer vector of length 2 specifying the dimensions of the returned object.
 #' \item \code{dimnames}, a list of length 2 containing the row and column names.
+#' \item \code{proxy}, an integer or numeric matrix-like object specifying the location of each entry of \code{x} in the output matrix.
+#' \item \code{reorder}, a logical scalar indicating whether \code{proxy} (if specified) should be reordered.
 #' }
-#' \code{x} should have length equal to the product of \code{dim}.
-#' The entries of the returned DataFrameMatrix are filled by \code{x} in a column-major manner.
+#' The type of the returned BumpyMatrix object is determined from the type of \code{x}.
+#'
+#' If \code{proxy=NULL}, \code{x} should have length equal to the product of \code{dim}.
+#' The entries of the returned BumpyMatrix are filled with \code{x} in a column-major manner.
+#'
+#' If \code{proxy} is specified, it should contain indices in \code{1:length(x)} with all other entries filled with zeros.
+#' If \code{reorder=FALSE}, all non-zero values should be in increasing order when encountered in column-major format;
+#' otherwise, the indices are resorted to enforce this expectation.
+#' Note that \code{dims} and \code{dimnames} are ignored.
 #'
 #' @section Basic matrix methods:
 #' In the following code snippets, \code{x} is an instance of a BumpyMatrix subclass.
@@ -97,14 +106,15 @@
 #' @docType class
 #' @aliases
 #' BumpyMatrix-class
-#' initialize,BumpyMatrix-method
 #' show,BumpyMatrix-method
 #' [,BumpyMatrix,ANY,ANY,ANY-method
 #' [,BumpyMatrix,ANY-method
+#' [,BumpyMatrix,BumpyMatrix,ANY,ANY-method
 #' [,BumpyMatrix,BumpyMatrix-method
 #' [<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method
+#' dim,BumpyMatrix-method
 #' dimnames,BumpyMatrix-method
-#' dimnames<-,BumpyMatrix-method
+#' dimnames<-,BumpyMatrix,ANY-method
 #' rbind,BumpyMatrix-method
 #' cbind,BumpyMatrix-method
 #' t,BumpyMatrix-method
@@ -114,29 +124,40 @@
 NULL
 
 #' @export
-BumpyMatrix <- function(x, dim, dimnames=list(NULL, NULL)) {
+BumpyMatrix <- function(x, dim, dimnames=list(NULL, NULL), proxy=NULL, reorder=TRUE) {
     y <- x@elementType
     substring(y, 1L, 1L) <- toupper(substring(y, 1L, 1L))
-    new(paste0("Bumpy", y, "Matrix"), data=x, dim=as.integer(dim), dimnames=dimnames)
-}
 
-#' @export
-setMethod("initialize", "BumpyMatrix", function(.Object, ..., dimnames=list(NULL, NULL)) {
-    callNextMethod()
-})
+    if (is.null(proxy)) {
+        proxy <- matrix(seq_len(dim[1]*dim[2]), dim[1], dim[2], dimnames=dimnames)
+        reorder <- FALSE
+    }
+
+    if (reorder) {
+        out <- .reorder_indices_raw(proxy, x)
+        proxy <- out[[1]]
+        x <- out[[2]]
+    }
+
+    new(paste0("Bumpy", y, "Matrix"), data=x, proxy=proxy)
+}
 
 setValidity("BumpyMatrix", function(object) {
     msg <- character(0)
 
-    if (length(undim(object))!=nrow(object) * ncol(object)) {
-        msg <- c(msg, "product of 'dim(object)' should be equal to the length of 'undim(object)'")
+    if (length(dim(object@proxy))!=2L) {
+        msg <- c(msg, "'proxy' should be a 2-dimensional object")
     }
-
-    if (!is.null(rownames(object)) && length(rownames(object))!=nrow(object)) {
-        msg <- c(msg, "'rownames(object)' should be NULL or have length equal to 'nrow(object)'")
-    }
-    if (!is.null(colnames(object)) && length(colnames(object))!=ncol(object)) {
-        msg <- c(msg, "'colnames(object)' should be NULL or have length equal to 'ncol(object)'")
+    if (!is.numeric(object@proxy[0])) {
+        msg <- c(msg, "'proxy' should contain integer indices")
+    } else {
+        nzero <- which(object@proxy!=0)
+        if (!identical(as.integer(object@proxy[nzero]), seq_along(nzero))) {
+            msg <- c(msg, "'proxy' should contain consecutive indices")
+        }
+        if (length(nzero)!=length(undim(object))) {
+            msg <- c(msg, "'data' should have length equal to the number of non-zero elements in 'proxy'")
+        }
     }
 
     if (length(msg)) {
@@ -151,15 +172,14 @@ setMethod("show", "BumpyMatrix", function(object) {
 })
 
 #' @export
-setMethod("dimnames", "BumpyMatrix", function(x) x@dimnames)
+setMethod("dim", "BumpyMatrix", function(x) dim(x@proxy))
+
+#' @export
+setMethod("dimnames", "BumpyMatrix", function(x) dimnames(x@proxy))
 
 #' @export
 setReplaceMethod("dimnames", "BumpyMatrix", function(x, value) {
-    if (is.null(value)) {
-        value <- list(NULL, NULL)
-    }
-    x@dimnames <- value
-    validObject(x)
+    dimnames(x@proxy) <- value
     x
 })
 
@@ -177,33 +197,29 @@ setMethod("[", c("BumpyMatrix", "ANY", "ANY", "ANY"), function(x, i, j, ..., dro
         return(x)
     }
 
-    # TODO: avoid instantiating the entire Matrix.
-    keep <- matrix(seq_len(nrow(x)*ncol(x)), nrow(x), ncol(x), dimnames=dimnames(x))
-    if (!missing(i)) {
-        keep <- keep[i,,drop=FALSE] 
-    }
-    if (!missing(j)) {
-        keep <- keep[,j,drop=FALSE]
+    # Goddamn S4 subsetting doesn't dispatch on substituted missing arguments.
+    if (!missing(i) && !missing(j)) {
+        leftovers <- x@proxy[i,j,drop=FALSE]
+    } else if (!missing(i)) {
+        leftovers <- x@proxy[i,,drop=FALSE]
+    } else {
+        leftovers <- x@proxy[,j,drop=FALSE]
     }
 
-    x@data <- undim(x)[as.integer(keep)]
-    x@dim <- dim(keep)
-    x@dimnames <- dimnames(keep)
+    nzero <- which(leftovers!=0)
+    idx <- leftovers[nzero]
+    x@data <- x@data[idx]
+    leftovers[nzero] <- seq_along(nzero)
+    x@proxy <- leftovers
 
     if (drop && any(dim(x)==1L)) {
-        stuff <- undim(x)
-        if (nrow(x)==1L && ncol(x)==1L) {
-            n <- NULL
-        } else if (nrow(x)==1L) {
-            n <- colnames(keep)
-        } else {
-            n <- rownames(keep)
-        }
-        names(stuff) <- n
-        return(stuff)
+        indices <- drop(x@proxy)
+        output <- .expand_List(x@data, indices)
+        names(output) <- names(indices)
+        output
+    } else {
+        x
     }
-
-    x
 })
 
 .commat_by_commat <- function(x, i, ...) {
@@ -211,6 +227,9 @@ setMethod("[", c("BumpyMatrix", "ANY", "ANY", "ANY"), function(x, i, j, ..., dro
     if (!identical(dim(x), dim(i))) {
         stop("BumpyMatrix objects 'x' and 'i' should have the same dimensions")
     }
+    values <- .reconcile_matrices(list(x, i))
+    x <- values[[1]]
+    i <- values[[2]]
     x@data <- undim(x)[undim(i)]
     x
 }
@@ -220,18 +239,21 @@ setMethod("[", c("BumpyMatrix", "BumpyMatrix"), .commat_by_commat)
 
 #' @export
 setReplaceMethod("[", c("BumpyMatrix", "ANY", "ANY", "BumpyMatrix"), function(x, i, j, ..., value) {
-    # TODO: avoid instantiating the entire Matrix.
-    keep <- matrix(seq_len(nrow(x)*ncol(x)), nrow(x), ncol(x), dimnames=dimnames(x))
-    if (!missing(i)) {
-        keep <- keep[i,,drop=FALSE] 
-    }
-    if (!missing(j)) {
-        keep <- keep[,j,drop=FALSE]
+    bumped <- .increment_indices(value@proxy, length(undim(x)))
+
+    # Goddamn S4 subsetting doesn't dispatch on substituted missing arguments.
+    if (!missing(i) && !missing(j)) {
+        x@proxy[i,j] <- bumped
+    } else if (!missing(i)) {
+        x@proxy[i,] <- bumped
+    } else if (!missing(j)) {
+        x@proxy[,j] <- bumped
+    } else {
+        x@proxy[] <- bumped
     }
 
-    x@data[as.integer(keep)] <- undim(value)
-
-    x
+    x@data <- c(x@data, value@data)
+    .reorder_indices(x)
 })
 
 #' @export
@@ -247,20 +269,15 @@ setMethod("rbind", "BumpyMatrix", function(..., deparse.level=1) {
     for (i in seq_along(combined)) {
         current <- args[[i]]
         combined[[i]] <- undim(current)
-        reorder[[i]] <- matrix(offset + seq_along(combined[[i]]), 
-            nrow(current), ncol(current), dimnames=dimnames(current))
+        reorder[[i]] <- .increment_indices(current@proxy, offset)
         offset <- offset + length(combined[[i]])
     }
 
     reorder <- do.call(rbind, reorder)
     combined <- do.call(c, combined)
-    combined <- combined[as.vector(reorder)]
 
-    if (is.null(dn <- dimnames(reorder))) {
-        dn <- list(NULL, NULL)
-    }
     # This might be a new class, depending on the type; can't just use arg[[1]].
-    BumpyMatrix(combined, dim=dim(reorder), dimnames=dn)
+    BumpyMatrix(combined, proxy=reorder)
 })
 
 #' @export
@@ -276,27 +293,20 @@ setMethod("cbind", "BumpyMatrix", function(..., deparse.level=1) {
     for (i in seq_along(combined)) {
         current <- args[[i]]
         combined[[i]] <- undim(current)
-        reorder[[i]] <- matrix(offset + seq_along(combined[[i]]), 
-            nrow(current), ncol(current), dimnames=dimnames(current))
+        reorder[[i]] <- .increment_indices(current@proxy, offset)
         offset <- offset + length(combined[[i]])
     }
 
     reorder <- do.call(cbind, reorder)
     combined <- do.call(c, combined)
-    combined <- combined[as.vector(reorder)]
 
-    if (is.null(dn <- dimnames(reorder))) {
-        dn <- list(NULL, NULL)
-    }
     # This might be a new class, depending on the type; can't just use arg[[1]].
-    BumpyMatrix(combined, dim=dim(reorder), dimnames=dn)
+    BumpyMatrix(combined, proxy=reorder)
 })
 
 #' @export
+#' @importFrom Matrix t
 setMethod("t", "BumpyMatrix", function(x) {
-    o <- matrix(seq_len(nrow(x)*ncol(x)), ncol(x), nrow(x), byrow=TRUE)
-    x@data <- undim(x)[as.vector(o)]
-    x@dim <- rev(x@dim)
-    x@dimnames <- rev(x@dimnames)
-    x
+    x@proxy <- t(x@proxy) 
+    .reorder_indices(x)
 })
