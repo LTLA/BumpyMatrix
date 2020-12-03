@@ -5,10 +5,8 @@
 \alias{BumpyDFrameMatrix}
 \alias{BumpyDFrameMatrix-class}
 \alias{show,BumpyDFrameMatrix-method}
-\alias{fields}
-\alias{fields,BumpyDFrameMatrix-method}
-\alias{fields<-}
-\alias{fields<-,BumpyDFrameMatrix-method}
+\alias{commonColnames,BumpyDFrameMatrix-method}
+\alias{commonColnames<-,BumpyDFrameMatrix-method}
 \alias{[,BumpyDFrameMatrix,ANY-method}
 \alias{[,BumpyDFrameMatrix,ANY,ANY,ANY-method}
 \alias{[,BumpyDFrameMatrix,BumpyMatrix-method}
@@ -23,8 +21,8 @@ e.g., for inclusion as another assay in a SummarizedExperiment object.
 \details{
 In the following code snippets, \code{x} is a BumpyDFrameMatrix.
 
-\code{fields(x)} will return a character vector with the names of the available fields.
-This can be modified with \code{fields(x) <- value}.
+\code{commonColnames(x)} will return a character vector with the names of the available commonColnames.
+This can be modified with \code{commonColnames(x) <- value}.
 
 \code{x[i, j, k, ..., .dropk=drop, drop=TRUE]} will subset the BumpyDFrameMatrix:
 \itemize{

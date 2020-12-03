@@ -7,8 +7,8 @@
 #' @details
 #' In the following code snippets, \code{x} is a BumpyDFrameMatrix.
 #'
-#' \code{fields(x)} will return a character vector with the names of the available fields.
-#' This can be modified with \code{fields(x) <- value}.
+#' \code{commonColnames(x)} will return a character vector with the names of the available commonColnames.
+#' This can be modified with \code{commonColnames(x) <- value}.
 #'
 #' \code{x[i, j, k, ..., .dropk=drop, drop=TRUE]} will subset the BumpyDFrameMatrix:
 #' \itemize{
@@ -56,10 +56,8 @@
 #' @aliases
 #' BumpyDFrameMatrix-class
 #' show,BumpyDFrameMatrix-method
-#' fields
-#' fields,BumpyDFrameMatrix-method
-#' fields<-
-#' fields<-,BumpyDFrameMatrix-method
+#' commonColnames,BumpyDFrameMatrix-method
+#' commonColnames<-,BumpyDFrameMatrix-method
 #' [,BumpyDFrameMatrix,ANY-method
 #' [,BumpyDFrameMatrix,ANY,ANY,ANY-method
 #' [,BumpyDFrameMatrix,BumpyMatrix-method
@@ -101,12 +99,12 @@ setMethod("[", "BumpyDFrameMatrix", function(x, i, j, k, ..., .dropk=drop, drop=
 })
 
 #' @export
-setMethod("fields", "BumpyDFrameMatrix", function(x) colnames(unlist(x)))
+setMethod("commonColnames", "BumpyDFrameMatrix", function(x) commonColnames(unlist(x)))
 
 #' @export
-setReplaceMethod("fields", "BumpyDFrameMatrix", function(x, value) {
+setReplaceMethod("commonColnames", "BumpyDFrameMatrix", function(x, value) {
     # Get IRanges to add this capability directly?
-    colnames(x@data@unlistData) <- value
+    commonColnames(x@data) <- value
     x
 })
 
@@ -149,4 +147,13 @@ setReplaceMethod("[", c("BumpyDFrameMatrix", "ANY", "ANY", "BumpyMatrix"), funct
 
         x 
     }
+})
+
+#' @export
+setMethod("commonColnames", "BumpyDFrameMatrix", function(x) commonColnames(undim(x)))
+
+#' @export
+setReplaceMethod("commonColnames", "BumpyDFrameMatrix", function(x, value) {
+    commonColnames(x@data) <- value
+    x
 })

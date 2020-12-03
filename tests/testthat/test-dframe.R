@@ -9,9 +9,9 @@ names(out) <- NULL
 mat <- BumpyMatrix(out, c(5, 4))
 
 test_that("DF fields operations work as expected", {
-    expect_identical(fields(mat), c("x", "y"))
-    fields(mat) <- c("X", "Y")
-    expect_identical(fields(mat), c("X", "Y"))
+    expect_identical(commonColnames(mat), c("x", "y"))
+    commonColnames(mat) <- c("X", "Y")
+    expect_identical(commonColnames(mat), c("X", "Y"))
 })
 
 test_that("DF basic subsetting works as expected", {
@@ -24,7 +24,7 @@ test_that("DF basic subsetting works as expected", {
     # Now trying out the k.
     expect_identical(mat[,,"x"], BumpyMatrix(out[,"x"], c(5,4)))
     invert <- mat[,,c("y", "x")]
-    expect_identical(fields(invert), c("y", "x"))
+    expect_identical(commonColnames(invert), c("y", "x"))
 
     # Trying out the 'k' with more complex drops.
     expect_identical(mat[,1,"x"], head(out[,"x"], 5))
