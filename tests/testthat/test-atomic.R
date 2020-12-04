@@ -17,6 +17,11 @@ smat <- .create_sparse_bumpy_matrix(x[1:10], c(5, 4))
 ref.smat <- .promote_to_dense(smat)
 
 test_that("Ops work correctly", {
+    # Unary operations.
+    expect_identical(mat, +mat)
+    expect_identical(-mat, 0-mat)
+    expect_identical(!mat, mat==0)
+
     # Dual operations
     output <- mat + mat2
     expect_identical(output[,1], mat[,1] + mat2[,1])

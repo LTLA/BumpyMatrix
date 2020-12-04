@@ -83,6 +83,8 @@
 #' Ops,BumpyAtomicMatrix,BumpyAtomicMatrix-method
 #' Ops,atomic,BumpyAtomicMatrix-method
 #' Ops,BumpyAtomicMatrix,atomic-method
+#' Ops,BumpyAtomicMatrix,missing-method
+#' !,BumpyAtomicMatrix-method
 #' Math,BumpyAtomicMatrix-method
 #' Math2,BumpyAtomicMatrix-method
 #' Summary,BumpyAtomicMatrix-method
@@ -156,6 +158,17 @@ setMethod("Ops", c("atomic", "BumpyAtomicMatrix"), function(e1, e2) {
 setMethod("Ops", c("BumpyAtomicMatrix", "atomic"), function(e1, e2) {
     out <- callGeneric(undim(e1), e2)
     BumpyMatrix(out, proxy=e1@proxy)
+})
+
+#' @export
+setMethod("Ops", c("BumpyAtomicMatrix", "missing"), function(e1, e2) {
+    out <- callGeneric(undim(e1))
+    BumpyMatrix(out, proxy=e1@proxy)
+})
+
+#' @export
+setMethod("!", "BumpyAtomicMatrix", function(x) {
+    BumpyMatrix(!undim(x), proxy=x@proxy)
 })
 
 #' @export

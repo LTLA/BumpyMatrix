@@ -11,6 +11,8 @@
 \alias{Ops,BumpyAtomicMatrix,BumpyAtomicMatrix-method}
 \alias{Ops,atomic,BumpyAtomicMatrix-method}
 \alias{Ops,BumpyAtomicMatrix,atomic-method}
+\alias{Ops,BumpyAtomicMatrix,missing-method}
+\alias{!,BumpyAtomicMatrix-method}
 \alias{Math,BumpyAtomicMatrix-method}
 \alias{Math2,BumpyAtomicMatrix-method}
 \alias{Summary,BumpyAtomicMatrix-method}
