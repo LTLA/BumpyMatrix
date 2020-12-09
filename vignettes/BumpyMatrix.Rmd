@@ -32,8 +32,8 @@ the dimensions of the `BumpyMatrix` can represent genes and cells while each ent
 
 # Construction
 
-A variety of `BumpyMatrix` subclasses are implemented but the most interesting is probably the `BumpyDFrameMatrix`.
-This is an S4 matrix class where each entry is a `DFrame` object, i.e., Bioconductor's wrapper around the `data.frame`.
+A variety of `BumpyMatrix` subclasses are implemented but the most interesting is probably the `BumpyDataFrameMatrix`.
+This is an S4 matrix class where each entry is a `DataFrame` object, i.e., Bioconductor's wrapper around the `data.frame`.
 To demonstrate, let's mock up some data for our hypothetical FISH experiment:
 
 ```{r}
@@ -46,7 +46,7 @@ df <- DataFrame(
 df 
 ```
 
-We then use the `splitToBumpyMatrix()` utility to easily create our `BumpyDFrameMatrix` based on the variables on the x- and y-axes.
+We then use the `splitToBumpyMatrix()` utility to easily create our `BumpyDataFrameMatrix` based on the variables on the x- and y-axes.
 Here, each row is a gene, each column is a cell, and each entry holds all coordinates for that gene/cell combination.
 
 ```{r}
@@ -56,7 +56,7 @@ mat
 mat[1,1][[1]]
 ```
 
-We can also set `sparse=TRUE` to use a more efficient sparse representation, which avoids explicit storage of empty `DFrame`s.
+We can also set `sparse=TRUE` to use a more efficient sparse representation, which avoids explicit storage of empty `DataFrame`s.
 This may be necessary for larger datasets as there is a limit of `r .Machine$integer.max` (non-empty) entries in each `BumpyMatrix`.
 
 ```{r}
@@ -77,7 +77,7 @@ t(mat)
 ```
 
 Subsetting will yield a new `BumpyMatrix` object corresponding to the specified submatrix.
-If the returned submatrix has a dimension of length 1 and `drop=TRUE`, the underlying `CompressedList` of values (in this case, the list of `DFrame`s) is returned.
+If the returned submatrix has a dimension of length 1 and `drop=TRUE`, the underlying `CompressedList` of values (in this case, the list of `DataFrame`s) is returned.
 
 ```{r}
 mat[c("GENE_2", "GENE_20"),]
@@ -85,7 +85,7 @@ mat[,1:5]
 mat["GENE_10",]
 ```
 
-For `BumpyDFrameMatrix` objects, we have an additional third index that allows us to easily extract an individual column of each `DFrame` into a new `BumpyMatrix`.
+For `BumpyDataFrameMatrix` objects, we have an additional third index that allows us to easily extract an individual column of each `DataFrame` into a new `BumpyMatrix`.
 In the example below, we extract the x-coordinate into a new `BumpyNumericMatrix`:
 
 ```{r}
@@ -125,11 +125,11 @@ sub[,1]
 ```
 
 Here, `i` is a `BumpyLogicalMatrix` where each entry is a logical vector.
-When we do `x[i]`, we effectively loop over the corresponding entries of `x` and `i`, using the latter to subset the `DFrame` in the former.
-This produces a new `BumpyDFrameMatrix` containing, in this case, only the observations with positive x- and y-coordinates.
+When we do `x[i]`, we effectively loop over the corresponding entries of `x` and `i`, using the latter to subset the `DataFrame` in the former.
+This produces a new `BumpyDataFrameMatrix` containing, in this case, only the observations with positive x- and y-coordinates.
 
-For `BumpyDFrameMatrix` objects, subsetting to a single field in the third dimension will automatically drop to the type of the underlying column of the `DFrame`.
-This can be stopped with `drop=FALSE` to preserve the `BumpyDFrameMatrix` output:
+For `BumpyDataFrameMatrix` objects, subsetting to a single field in the third dimension will automatically drop to the type of the underlying column of the `DataFrame`.
+This can be stopped with `drop=FALSE` to preserve the `BumpyDataFrameMatrix` output:
 
 ```{r}
 mat[,,'x']

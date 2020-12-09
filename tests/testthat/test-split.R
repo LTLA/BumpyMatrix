@@ -19,7 +19,7 @@ test_that("splitToBumpyMatrix works as expected", {
 
 test_that("splitToBumpyMatrix works for DF iputs", {
     mat <- splitToBumpyMatrix(df[,'value',drop=FALSE], df$row, df$column)
-    expect_s4_class(mat, "BumpyDFrameMatrix")
+    expect_s4_class(mat, "BumpyDataFrameMatrix")
 
     expect_identical(rownames(mat), LETTERS)    
     expect_identical(colnames(mat), as.character(1:10))    

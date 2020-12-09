@@ -17,4 +17,4 @@ setClass("BumpyLogicalMatrix", contains="BumpyAtomicMatrix", slots=c(data="Compr
 setClass("BumpyCharacterMatrix", contains="BumpyAtomicMatrix", slots=c(data="CompressedCharacterList"))
 
 #' @export
-setClass("BumpyDFrameMatrix", contains="BumpyMatrix", slots=c(data="CompressedSplitDFrameList"))
+setClass("BumpyDataFrameMatrix", contains="BumpyMatrix", slots=c(data="CompressedSplitDataFrameList"))

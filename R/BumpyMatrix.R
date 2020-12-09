@@ -125,8 +125,13 @@ NULL
 
 #' @export
 BumpyMatrix <- function(x, dim, dimnames=list(NULL, NULL), proxy=NULL, reorder=TRUE) {
-    y <- x@elementType
-    substring(y, 1L, 1L) <- toupper(substring(y, 1L, 1L))
+    if (is(unlist(x), "DataFrame")) {
+        # To handle more DataFrame subclasses without writing a new class.
+        y <- "DataFrame"
+    } else {
+        y <- x@elementType
+        substring(y, 1L, 1L) <- toupper(substring(y, 1L, 1L))
+    }
 
     if (is.null(proxy)) {
         proxy <- matrix(seq_len(dim[1]*dim[2]), dim[1], dim[2], dimnames=dimnames)

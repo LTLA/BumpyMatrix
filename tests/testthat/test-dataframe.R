@@ -1,5 +1,5 @@
-# This tests the functionality of the DFrameMatrix.
-# library(testthat); library(BumpyMatrix); source("setup.R"); source("test-dframe.R")
+# This tests the functionality of the DataFrameMatrix.
+# library(testthat); library(BumpyMatrix); source("setup.R"); source("test-dataframe.R")
 
 library(S4Vectors)
 df <- DataFrame(x=runif(100), y=runif(100))
@@ -22,13 +22,21 @@ test_that("DF basic subsetting works as expected", {
     expect_identical(undim(mat[1,,drop=FALSE]), out[1 + (0:3) * nrow(mat)])
 
     # Now trying out the k.
+    expect_s4_class(mat[,,"x"], "BumpyNumericMatrix")
     expect_identical(mat[,,"x"], BumpyMatrix(out[,"x"], c(5,4)))
+
     invert <- mat[,,c("y", "x")]
+    expect_s4_class(invert, "BumpyDataFrameMatrix")
     expect_identical(commonColnames(invert), c("y", "x"))
 
     # Trying out the 'k' with more complex drops.
     expect_identical(mat[,1,"x"], head(out[,"x"], 5))
     expect_identical(mat[,1,"x",.dropk=FALSE], head(out[,"x",drop=FALSE], 5))
+
+    expect_s4_class(mat[,1,"x",drop=FALSE], "BumpyDataFrameMatrix")
+    expect_s4_class(mat[,1,"x",.dropk=TRUE,drop=FALSE], "BumpyNumericMatrix")
+    expect_s4_class(mat[,1,"x",.dropk=FALSE,drop=TRUE], "DataFrameList")
+    expect_s4_class(mat[,1,"x",.dropk=TRUE,drop=TRUE], "NumericList")
 
     expect_identical(undim(mat[,1:2,"x"]), head(out[,"x"], 10))
     expect_identical(undim(mat[,1:2,"x",.dropk=FALSE]), head(out[,"x",drop=FALSE], 10))
@@ -55,7 +63,7 @@ test_that("DF subset replacement works as expected", {
     expect_identical(undim(copy[,,'x']), out[,'x']*2)
 
     copy <- mat
-    copy[,,'x'] <- copy[,,'y',drop=FALSE] # same with DFrameMatrix assignment.
+    copy[,,'x'] <- copy[,,'y',drop=FALSE] # same with DataFrameMatrix assignment.
     expect_identical(undim(copy[,,'x']), out[,'y'])
 
     copy <- mat
