@@ -2,15 +2,14 @@
 title: Using BumpyMatrix objects
 author:
 - name: Aaron Lun
-  email: luna@gene.com
-  affiliation: gRED B&CB
+  email: infinite.monkeys.with.keyboards@gmail.com
 package: BumpyMatrix
-date: "Revised: November 25, 2020"
+date: "Revised: December 15, 2020"
 output:
   BiocStyle::html_document:
     toc_float: yes
 vignette: >
-  %\VignetteIndexEntry{BumpyMatrix}
+  %\VignetteIndexEntry{The BumpyMatrix class}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
