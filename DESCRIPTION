@@ -10,8 +10,11 @@ Description: Implements the BumpyMatrix class and several subclasses
     data frame. This allows us to naturally represent multivariate data in a
     format that is compatible with two-dimensional containers like the 
     SummarizedExperiment and MultiAssayExperiment objects.
-Authors@R: person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com")
-License: Genentech, Inc.
+Authors@R: c(
+        person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com"),
+        person("Genentech, Inc.", role="cph")
+    )
+License: MIT + file LICENSE
 Imports:
     utils,
     methods,
