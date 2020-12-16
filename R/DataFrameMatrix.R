@@ -99,11 +99,10 @@ setMethod("[", "BumpyDataFrameMatrix", function(x, i, j, k, ..., .dropk=drop, dr
 })
 
 #' @export
-setMethod("commonColnames", "BumpyDataFrameMatrix", function(x) commonColnames(unlist(x)))
+setMethod("commonColnames", "BumpyDataFrameMatrix", function(x) commonColnames(undim(x)))
 
 #' @export
 setReplaceMethod("commonColnames", "BumpyDataFrameMatrix", function(x, value) {
-    # Get IRanges to add this capability directly?
     commonColnames(x@data) <- value
     x
 })
@@ -147,13 +146,4 @@ setReplaceMethod("[", c("BumpyDataFrameMatrix", "ANY", "ANY", "BumpyMatrix"), fu
 
         x 
     }
-})
-
-#' @export
-setMethod("commonColnames", "BumpyDataFrameMatrix", function(x) commonColnames(undim(x)))
-
-#' @export
-setReplaceMethod("commonColnames", "BumpyDataFrameMatrix", function(x, value) {
-    commonColnames(x@data) <- value
-    x
 })
