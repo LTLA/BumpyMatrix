@@ -11,7 +11,7 @@ Description: Implements the BumpyMatrix class and several subclasses
     format that is compatible with two-dimensional containers like the 
     SummarizedExperiment and MultiAssayExperiment objects.
 Authors@R: c(
-        person("Aaron", "Lun", role=c("aut", "cre"), email="luna@gene.com"),
+        person("Aaron", "Lun", role=c("aut", "cre"), email="infinite.monkeys.with.keyboards@gmail.com"),
         person("Genentech, Inc.", role="cph")
     )
 License: MIT + file LICENSE
@@ -26,5 +26,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat
+biocViews: Software, Infrastructure, DataRepresentation
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
+URL: https://bioconductor.org/packages/S4Vectors
+BugReports: https://github.com/LTLA/BumpyMatrix/issues
