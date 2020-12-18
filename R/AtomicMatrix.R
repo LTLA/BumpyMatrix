@@ -152,6 +152,10 @@ setMethod("Ops", c("BumpyAtomicMatrix", "BumpyAtomicMatrix"), function(e1, e2) {
 
 #' @export
 setMethod("Ops", c("atomic", "BumpyAtomicMatrix"), function(e1, e2) {
+    if (length(e1) > 1 && .is_sparse(e2)) {
+        indices <- ((which(e2@proxy > 0) - 1L) %% length(e1)) + 1L
+        e1 <- e1[indices]
+    }
     out <- callGeneric(e1, undim(e2))
     BumpyMatrix(out, proxy=e2@proxy)
 })
@@ -161,12 +165,19 @@ setMethod("Ops", c("matrix", "BumpyAtomicMatrix"), function(e1, e2) {
     if (!identical(dim(e1), dim(e2))) {
         stop("matrices should have same dimensions for binary operator")
     }
+    if (.is_sparse(e2)) {
+        e1 <- e1[which(e2@proxy > 0)]
+    }
     out <- callGeneric(as.vector(e1), undim(e2))
     BumpyMatrix(out, proxy=e2@proxy)
 })
 
 #' @export
 setMethod("Ops", c("BumpyAtomicMatrix", "atomic"), function(e1, e2) {
+    if (length(e2) > 1 && .is_sparse(e1)) {
+        indices <- ((which(e1@proxy > 0) - 1L) %% length(e2)) + 1L
+        e2 <- e2[indices]
+    }
     out <- callGeneric(undim(e1), e2)
     BumpyMatrix(out, proxy=e1@proxy)
 })
@@ -175,6 +186,9 @@ setMethod("Ops", c("BumpyAtomicMatrix", "atomic"), function(e1, e2) {
 setMethod("Ops", c("BumpyAtomicMatrix", "matrix"), function(e1, e2) {
     if (!identical(dim(e1), dim(e2))) {
         stop("matrices should have same dimensions for binary operator")
+    }
+    if (.is_sparse(e1)) {
+        e2 <- e2[which(e1@proxy > 0)]
     }
     out <- callGeneric(undim(e1), as.vector(e2))
     BumpyMatrix(out, proxy=e1@proxy)

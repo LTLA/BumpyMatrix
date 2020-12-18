@@ -84,6 +84,10 @@ test_that("Ops work correctly for atomic vectors/matrices", {
     expect_identical(mat[1,4][[1]]+2, mat2[1,4][[1]])
     expect_identical(mat[5,4][[1]]+2, mat2[5,4][[1]])
 
+    # Sparse case works correctly.
+    expect_identical(ref.smat + X, .promote_to_dense(smat + X))
+    expect_identical(X + ref.smat, .promote_to_dense(X + smat))
+
     # Trying with matrices.
     X <- matrix(seq_along(mat), nrow(mat), ncol(mat))
     mat3 <- mat + X
@@ -97,6 +101,10 @@ test_that("Ops work correctly for atomic vectors/matrices", {
 
     expect_error(X + mat[1:2,], "binary operator")
     expect_error(mat[1:2,] + X, "binary operator")
+
+    # Sparse case works correctly.
+    expect_identical(ref.smat + X, .promote_to_dense(smat + X))
+    expect_identical(X + ref.smat, .promote_to_dense(X + smat))
 })
 
 test_that("Summary works correctly", {
