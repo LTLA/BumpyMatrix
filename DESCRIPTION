@@ -1,14 +1,14 @@
 Package: BumpyMatrix
-Version: 0.99.0
-Date: 2020-11-24
+Version: 0.99.1
+Date: 2020-12-17
 Title: Bumpy Matrix of Non-Scalar Objects
 Description: Implements the BumpyMatrix class and several subclasses
-    for holding non-scalar objects in each entry of the matrix. This is 
-    akin to a ragged array but the raggedness is in the third dimension,
-    much like a bumpy surface - hence the name. Of particular
-    interest is the BumpyDFrameMatrix, where each entry is a Bioconductor
-    data frame. This allows us to naturally represent multivariate data in a
-    format that is compatible with two-dimensional containers like the 
+    for holding non-scalar objects in each entry of the matrix. This is akin to
+    a ragged array but the raggedness is in the third dimension, much like
+    a bumpy surface - hence the name. Of particular interest is the
+    BumpyDataFrameMatrix, where each entry is a Bioconductor data frame.
+    This allows us to naturally represent multivariate data in a format
+    that is compatible with two-dimensional containers like the
     SummarizedExperiment and MultiAssayExperiment objects.
 Authors@R: c(
         person("Aaron", "Lun", role=c("aut", "cre"), email="infinite.monkeys.with.keyboards@gmail.com"),
@@ -29,5 +29,5 @@ Suggests:
 biocViews: Software, Infrastructure, DataRepresentation
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
-URL: https://bioconductor.org/packages/S4Vectors
+URL: https://bioconductor.org/packages/BumpyMatrix
 BugReports: https://github.com/LTLA/BumpyMatrix/issues
