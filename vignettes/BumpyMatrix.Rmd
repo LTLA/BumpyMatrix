@@ -45,12 +45,12 @@ df <- DataFrame(
 df 
 ```
 
-We then use the `splitToBumpyMatrix()` utility to easily create our `BumpyDataFrameMatrix` based on the variables on the x- and y-axes.
+We then use the `splitAsBumpyMatrix()` utility to easily create our `BumpyDataFrameMatrix` based on the variables on the x- and y-axes.
 Here, each row is a gene, each column is a cell, and each entry holds all coordinates for that gene/cell combination.
 
 ```{r}
 library(BumpyMatrix)
-mat <- splitToBumpyMatrix(df[,c("x", "y")], row=df$gene, column=df$cell)
+mat <- splitAsBumpyMatrix(df[,c("x", "y")], row=df$gene, column=df$cell)
 mat
 mat[1,1][[1]]
 ```
@@ -59,7 +59,9 @@ We can also set `sparse=TRUE` to use a more efficient sparse representation, whi
 This may be necessary for larger datasets as there is a limit of `r .Machine$integer.max` (non-empty) entries in each `BumpyMatrix`.
 
 ```{r}
-smat <- splitToBumpyMatrix(df[1:100,c("x", "y")], row=df$gene[1:100], column=df$cell[1:100])
+chosen <- df[1:100,]
+smat <- splitAsBumpyMatrix(chosen[,c("x", "y")], row=chosen$gene, 
+    column=chosen$cell, sparse=TRUE)
 smat
 ```
 

@@ -45,6 +45,10 @@ If \code{proxy} is specified, it should contain indices in \code{1:length(x)} wi
 If \code{reorder=FALSE}, all non-zero values should be in increasing order when encountered in column-major format;
 otherwise, the indices are resorted to enforce this expectation.
 Note that \code{dims} and \code{dimnames} are ignored.
+
+If \code{x} is missing, a \linkS4class{BumpyIntegerMatrix} is returned with zero rows and columns.
+If \code{dim} is also specified, a BumpyIntegerMatrix with the specified number of rows and columns is returned,
+where each entry is an empty integer vector.
 }
 
 \section{Basic matrix methods}{

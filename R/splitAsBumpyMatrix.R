@@ -19,8 +19,10 @@
 #' @seealso
 #' \code{\link{BumpyMatrix}}, if a \linkS4class{CompressedList} has already been constructed.
 #'
+#' \code{\link{splitAsList}}, which inspired this function.
+#'
 #' @examples
-#' mat <- splitToBumpyMatrix(runif(1000), 
+#' mat <- splitAsBumpyMatrix(runif(1000), 
 #'    row=sample(LETTERS, 1000, replace=TRUE),
 #'    column=sample(10, 1000, replace=TRUE)
 #' )
@@ -29,7 +31,7 @@
 #' mat[1,]
 #'
 #' # Or with a sparse representation.
-#' mat <- splitToBumpyMatrix(runif(10), 
+#' mat <- splitAsBumpyMatrix(runif(10), 
 #'    row=sample(LETTERS, 10, replace=TRUE),
 #'    column=sample(10, 10, replace=TRUE)
 #' )
@@ -39,7 +41,7 @@
 #'
 #' @export
 #' @importFrom Matrix sparseMatrix
-splitToBumpyMatrix <- function(x, row, column, sparse=FALSE) {
+splitAsBumpyMatrix <- function(x, row, column, sparse=FALSE) {
     row <- as.factor(row)
     column <- as.factor(column)
 

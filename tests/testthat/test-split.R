@@ -1,4 +1,4 @@
-# This tests the splitToBumpyMatrix function.
+# This tests the splitAsBumpyMatrix function.
 # library(testthat); library(BumpyMatrix); source("test-split.R")
 
 library(S4Vectors)
@@ -7,9 +7,9 @@ df <- DataFrame(value=runif(1000),
    column=sample(10, 1000, replace=TRUE)
 )
 
-mat <- splitToBumpyMatrix(df$value, df$row, df$column)
+mat <- splitAsBumpyMatrix(df$value, df$row, df$column)
 
-test_that("splitToBumpyMatrix works as expected", {
+test_that("splitAsBumpyMatrix works as expected", {
     expect_identical(rownames(mat), LETTERS)    
     expect_identical(colnames(mat), as.character(1:10))    
     expect_identical(mat[1,1][[1]], df$value[df$row=="A" & df$column==1])
@@ -17,8 +17,8 @@ test_that("splitToBumpyMatrix works as expected", {
     expect_identical(mat["Z",8][[1]], df$value[df$row=="Z" & df$column==8])
 })
 
-test_that("splitToBumpyMatrix works for DF iputs", {
-    mat <- splitToBumpyMatrix(df[,'value',drop=FALSE], df$row, df$column)
+test_that("splitAsBumpyMatrix works for DF iputs", {
+    mat <- splitAsBumpyMatrix(df[,'value',drop=FALSE], df$row, df$column)
     expect_s4_class(mat, "BumpyDataFrameMatrix")
 
     expect_identical(rownames(mat), LETTERS)    
@@ -28,11 +28,11 @@ test_that("splitToBumpyMatrix works for DF iputs", {
     expect_identical(mat["Z",8][[1]], df[df$row=="Z" & df$column==8,'value',drop=FALSE])
 })
 
-test_that("splitToBumpyMatrix works for sparse requests", {
-    mat <- splitToBumpyMatrix(df$value[1:100], df$row[1:100], df$column[1:100], sparse=TRUE)
+test_that("splitAsBumpyMatrix works for sparse requests", {
+    mat <- splitAsBumpyMatrix(df$value[1:100], df$row[1:100], df$column[1:100], sparse=TRUE)
     expect_s4_class(mat@proxy, "dgCMatrix")
 
-    ref <- splitToBumpyMatrix(df$value[1:100], df$row[1:100], df$column[1:100])
+    ref <- splitAsBumpyMatrix(df$value[1:100], df$row[1:100], df$column[1:100])
     expect_identical(ref[,1], mat[,1])
     expect_identical(ref[1,], mat[1,])
 })
