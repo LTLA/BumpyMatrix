@@ -23,6 +23,10 @@
 #' otherwise, the indices are resorted to enforce this expectation.
 #' Note that \code{dims} and \code{dimnames} are ignored.
 #'
+#' If \code{x} is missing, a \linkS4class{BumpyIntegerMatrix} is returned with zero rows and columns.
+#' If \code{dim} is also specified, a BumpyIntegerMatrix with the specified number of rows and columns is returned,
+#' where each entry is an empty integer vector.
+#' 
 #' @section Basic matrix methods:
 #' In the following code snippets, \code{x} is an instance of a BumpyMatrix subclass.
 #'
@@ -126,7 +130,18 @@
 NULL
 
 #' @export
+#' @importFrom Matrix sparseMatrix
 BumpyMatrix <- function(x, dim, dimnames=list(NULL, NULL), proxy=NULL, reorder=TRUE) {
+    if (missing(x)) {
+        x <- IntegerList()
+        if (is.null(proxy)) {
+            if (missing(dim)) {
+                dim <- integer(2)
+            }
+            proxy <- sparseMatrix(i=integer(0), j=integer(0), x=numeric(0), dims=dim)
+        }
+    }
+
     if (is(unlist(x), "DataFrame")) {
         # To handle more DataFrame subclasses without writing a new class.
         y <- "DataFrame"

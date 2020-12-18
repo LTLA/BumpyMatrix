@@ -48,6 +48,17 @@ test_that("BumpyMatrix constructor works as expected with a proxy", {
     expect_error(BumpyMatrix(x, proxy=sparseMatrix(1:10, 1:10, x=1:10), reorder=FALSE), "number of non-zero")
 })
 
+test_that("BumpyMatrix constructor works with a missing 'x'", {
+    mat <- BumpyMatrix()
+    expect_identical(nrow(mat), 0L)
+    expect_identical(ncol(mat), 0L)
+
+    mat <- BumpyMatrix(dim=c(5, 4))
+    expect_identical(nrow(mat), 5L)
+    expect_identical(ncol(mat), 4L)
+    expect_identical(mat[1,1][[1]], integer(0))
+})
+
 test_that("BumpyMatrix dimnames setter works as expected", {
     rownames(mat) <- letters[1:5]
     expect_identical(rownames(mat), letters[1:5])

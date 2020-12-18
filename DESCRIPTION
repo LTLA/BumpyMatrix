@@ -1,6 +1,6 @@
 Package: BumpyMatrix
-Version: 0.99.1
-Date: 2020-12-17
+Version: 0.99.2
+Date: 2020-12-18
 Title: Bumpy Matrix of Non-Scalar Objects
 Description: Implements the BumpyMatrix class and several subclasses
     for holding non-scalar objects in each entry of the matrix. This is akin to
