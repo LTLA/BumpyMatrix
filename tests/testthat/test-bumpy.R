@@ -15,6 +15,7 @@ test_that("BumpyMatrix constructor works as expected", {
     expect_null(rownames(mat))
     expect_null(colnames(mat))
     expect_identical(dim(mat), c(5L, 4L))
+    expect_identical(length(mat), 20L)
 
     lmat <- BumpyMatrix(x > 0.5, c(5, 4))
     expect_s4_class(lmat, "BumpyLogicalMatrix")

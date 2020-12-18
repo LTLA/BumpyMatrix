@@ -66,6 +66,39 @@ test_that("Math works correctly", {
     expect_identical(output[,1], 0 - smat[,1])
 })
 
+test_that("Ops work correctly for atomic vectors/matrices", {
+    X <- seq_len(nrow(mat))
+    mat2 <- mat + X
+    expect_identical(mat[1,1][[1]]+1, mat2[1,1][[1]])
+    expect_identical(mat[5,1][[1]]+5, mat2[5,1][[1]])
+    expect_identical(mat[1,4][[1]]+1, mat2[1,4][[1]])
+    expect_identical(mat[5,4][[1]]+5, mat2[5,4][[1]])
+
+    mat2b <- X + mat
+    expect_identical(mat2, mat2b)
+
+    # Recycles correctly?
+    mat2 <- mat + 1:2
+    expect_identical(mat[1,1][[1]]+1, mat2[1,1][[1]])
+    expect_identical(mat[5,1][[1]]+1, mat2[5,1][[1]])
+    expect_identical(mat[1,4][[1]]+2, mat2[1,4][[1]])
+    expect_identical(mat[5,4][[1]]+2, mat2[5,4][[1]])
+
+    # Trying with matrices.
+    X <- matrix(seq_along(mat), nrow(mat), ncol(mat))
+    mat3 <- mat + X
+    expect_identical(mat[1,1][[1]]+1, mat3[1,1][[1]])
+    expect_identical(mat[5,1][[1]]+5, mat3[5,1][[1]])
+    expect_identical(mat[1,4][[1]]+16, mat3[1,4][[1]])
+    expect_identical(mat[5,4][[1]]+20, mat3[5,4][[1]])
+
+    mat3b <- X + mat
+    expect_identical(mat3, mat3b)
+
+    expect_error(X + mat[1:2,], "binary operator")
+    expect_error(mat[1:2,] + X, "binary operator")
+})
+
 test_that("Summary works correctly", {
     # Most operations emit an ordinary matrix.
     output <- max(mat)

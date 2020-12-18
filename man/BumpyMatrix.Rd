@@ -11,6 +11,7 @@
 \alias{[,BumpyMatrix,BumpyMatrix-method}
 \alias{[<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method}
 \alias{dim,BumpyMatrix-method}
+\alias{length,BumpyMatrix-method}
 \alias{dimnames,BumpyMatrix-method}
 \alias{dimnames<-,BumpyMatrix,ANY-method}
 \alias{rbind,BumpyMatrix-method}
@@ -51,6 +52,7 @@ Note that \code{dims} and \code{dimnames} are ignored.
 In the following code snippets, \code{x} is an instance of a BumpyMatrix subclass.
 
 \code{dim(x)} will yield a length-2 integer vector containing the number of rows and columns in \code{x}.
+\code{length(x)} will yield the product of the number of columns and rows.
 
 \code{dimnames(x)} will yield a list of two character vectors with the row and column names of \code{x}.
 Either or both elements of the list may be \code{NULL} if no names are present.

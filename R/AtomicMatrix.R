@@ -83,6 +83,8 @@
 #' Ops,BumpyAtomicMatrix,BumpyAtomicMatrix-method
 #' Ops,atomic,BumpyAtomicMatrix-method
 #' Ops,BumpyAtomicMatrix,atomic-method
+#' Ops,matrix,BumpyAtomicMatrix-method
+#' Ops,BumpyAtomicMatrix,matrix-method
 #' Ops,BumpyAtomicMatrix,missing-method
 #' !,BumpyAtomicMatrix-method
 #' Math,BumpyAtomicMatrix-method
@@ -155,8 +157,26 @@ setMethod("Ops", c("atomic", "BumpyAtomicMatrix"), function(e1, e2) {
 })
 
 #' @export
+setMethod("Ops", c("matrix", "BumpyAtomicMatrix"), function(e1, e2) {
+    if (!identical(dim(e1), dim(e2))) {
+        stop("matrices should have same dimensions for binary operator")
+    }
+    out <- callGeneric(as.vector(e1), undim(e2))
+    BumpyMatrix(out, proxy=e2@proxy)
+})
+
+#' @export
 setMethod("Ops", c("BumpyAtomicMatrix", "atomic"), function(e1, e2) {
     out <- callGeneric(undim(e1), e2)
+    BumpyMatrix(out, proxy=e1@proxy)
+})
+
+#' @export
+setMethod("Ops", c("BumpyAtomicMatrix", "matrix"), function(e1, e2) {
+    if (!identical(dim(e1), dim(e2))) {
+        stop("matrices should have same dimensions for binary operator")
+    }
+    out <- callGeneric(undim(e1), as.vector(e2))
     BumpyMatrix(out, proxy=e1@proxy)
 })
 
