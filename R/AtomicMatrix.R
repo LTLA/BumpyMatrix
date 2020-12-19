@@ -298,13 +298,13 @@ setMethod("quantile", "BumpyAtomicMatrix", function(x, ...) {
     out <- quantile(undim(x), ...) 
 
     if (.is_sparse(x)) {
-        tmp <- t(.spawn_empty_shell(x, empty=quantile(.create_empty_entry(x))))
-        rownames(tmp) <- rownames(out)
-        tmp[,which(x@proxy!=0)] <- out
+        tmp <- .spawn_empty_shell(x, empty=quantile(.create_empty_entry(x), ...))
+        colnames(tmp) <- colnames(out)
+        tmp[which(x@proxy!=0),] <- out
         out <- tmp
     }
 
-    array(out, c(nrow(out), dim(x)), c(list(rownames(out)), dimnames(x)))
+    array(out, c(dim(x), ncol(out)), c(dimnames(x), list(colnames(out))))
 })
 
 .apply_matrix_out_pm <- function(..., FUN, MoreArgs=list()) {
@@ -379,7 +379,7 @@ setMethod("unstrsplit", "BumpyCharacterMatrix", function(x, sep="") {
     out <- unstrsplit(undim(x), sep=sep)
 
     if (.is_sparse(x)) {
-        tmp <- .spawn_empty_shell(x, empty=unstrsplit(.create_empty_entry(x)))
+        tmp <- .spawn_empty_shell(x, empty=unstrsplit(.create_empty_entry(x), sep=sep))
         tmp[which(x@proxy!=0)] <- out
         out <- tmp
     }

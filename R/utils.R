@@ -87,20 +87,28 @@
 }
 
 .is_sparse <- function(x) {
-    if (!is.matrix(x)) {
-        if (length(undim(x)) != as.double(nrow(x)) * ncol(x)) {
-            return(TRUE)
-        }
+    if (length(undim(x)) != as.double(nrow(x)) * ncol(x)) {
+        return(TRUE)
     }
     FALSE
 }
 
 .spawn_empty_shell <- function(x, empty) {
     N <- as.double(nrow(x)) * ncol(x)
-    if (length(empty)==1) {
-        rep(empty, N)
+    if (is.null(dim(empty))) {
+        if (length(empty)==1) {
+            rep(empty, N)
+        } else {
+            stop("non-matrix empty should have length 1")
+        }
+    } else if (nrow(empty)==1) {
+        matrix(as.vector(empty), N, length(empty), byrow=TRUE,
+            dimnames=list(NULL, colnames(empty)))
+    } else if (ncol(empty)==1) {
+        matrix(as.vector(empty), length(empty), N,
+            dimnames=list(rownames(empty), NULL))
     } else {
-        matrix(empty, N, length(empty), byrow=TRUE)
+        stop("empty matrix should have only one row or column")
     }
 }
 

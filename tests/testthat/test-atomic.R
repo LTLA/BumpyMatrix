@@ -145,14 +145,20 @@ test_that("numeric functions that emit matrices work correctly", {
 
     # Technically, this emits a 3D array.
     out <- quantile(mat)
-    expect_identical(out[,,1], quantile(mat[,1]))
-    expect_identical(out[,,4], quantile(mat[,4]))
+    expect_identical(out[,1,], quantile(mat[,1]))
+    expect_identical(out[4,,], quantile(mat[4,]))
+
+    out <- quantile(mat, p=0.5)
+    expect_identical(out[,1,], drop(quantile(mat[,1], p=0.5)))
+    expect_identical(out[4,,], drop(quantile(mat[4,], p=0.5)))
 
     # Same for the sparse case.
     expect_identical(mean(smat), mean(ref.smat))
     expect_identical(cov(smat, ref.smat), cov(ref.smat, ref.smat)) 
     expect_identical(which.max(smat), which.max(ref.smat))
+
     expect_identical(quantile(smat), quantile(ref.smat))
+    expect_identical(quantile(smat, p=0.5), quantile(ref.smat, p=0.5))
 })
 
 test_that("numeric functions that emit BumpyMatrices work correctly", {
