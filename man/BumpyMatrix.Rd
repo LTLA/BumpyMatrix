@@ -20,6 +20,7 @@
 \alias{undim}
 \alias{undim,BumpyMatrix-method}
 \alias{unlist,BumpyMatrix-method}
+\alias{lengths,BumpyMatrix-method}
 \title{The BumpyMatrix class}
 \description{
 The BumpyMatrix provides a two-dimensional object where each entry is a \linkS4class{Vector} object.
@@ -90,6 +91,10 @@ though it is also possible to use a BumpyCharacterMatrix if each entry of \code{
 
 \code{unlist(x, ...)} will return the underlying \linkS4class{Vector} used to create the \linkS4class{CompressedList} object.
 This is the same as \code{unlist(undim(x), ...)}.
+
+\code{lengths(x)} will return a numeric matrix-like object with the same dimensions and dimnames as \code{x},
+where each entry contains the length of the corresponding entry in \code{x}.
+The output class can be anything used in the \code{proxy} of the constructor, e.g., a sparse matrix from the \pkg{Matrix} package.
 }
 
 \examples{

@@ -259,3 +259,16 @@ test_that("BumpyMatrix transposition works as expected", {
     expect_identical(ref.smat[,2], tsmat[2,])
     expect_identical(ref.smat[4,], tsmat[,4])
 })
+
+test_that("BumpyMatrix lengths works as expected", {
+    out <- lengths(mat)
+    expect_identical(dim(out), dim(mat))
+    expect_identical(out[,1], lengths(mat[,1]))
+    expect_identical(out[5,], lengths(mat[5,]))
+
+    out2 <- lengths(smat)
+    expect_identical(dim(out2), dim(smat))
+    expect_equal(out2[,4], lengths(smat[,4]))
+    expect_equal(out2[4,], lengths(smat[4,]))
+})
+

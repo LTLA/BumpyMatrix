@@ -62,6 +62,10 @@
 #' \code{unlist(x, ...)} will return the underlying \linkS4class{Vector} used to create the \linkS4class{CompressedList} object.
 #' This is the same as \code{unlist(undim(x), ...)}.
 #'
+#' \code{lengths(x)} will return a numeric matrix-like object with the same dimensions and dimnames as \code{x},
+#' where each entry contains the length of the corresponding entry in \code{x}.
+#' The output class can be anything used in the \code{proxy} of the constructor, e.g., a sparse matrix from the \pkg{Matrix} package.
+#'
 #' @examples
 #' # Mocking up a BumpyNumericList:
 #' library(IRanges)
@@ -127,6 +131,7 @@
 #' undim
 #' undim,BumpyMatrix-method
 #' unlist,BumpyMatrix-method
+#' lengths,BumpyMatrix-method
 NULL
 
 #' @export
@@ -348,4 +353,16 @@ setMethod("cbind", "BumpyMatrix", function(..., deparse.level=1) {
 setMethod("t", "BumpyMatrix", function(x) {
     x@proxy <- t(x@proxy) 
     .reorder_indices(x)
+})
+
+#' @export
+setMethod("lengths", "BumpyMatrix", function(x) {
+    out <- x@proxy
+    n <- lengths(undim(x))
+
+    # Use arr.ind=TRUE to avoid problems with 
+    # []<- for real indices in Matrix classes.
+    out[which(out!=0, arr.ind=TRUE)] <- n
+
+    out
 })
