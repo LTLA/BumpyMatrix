@@ -48,6 +48,8 @@ mat[1,]
 \seealso{
 \code{\link{BumpyMatrix}}, if a \linkS4class{CompressedList} has already been constructed.
 
+\code{\link{unsplitAsDataFrame}}, which reverses this operation to recover a long-format DataFrame.
+
 \code{\link{splitAsList}}, which inspired this function.
 }
 \author{

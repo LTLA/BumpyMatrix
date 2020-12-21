@@ -36,3 +36,29 @@ test_that("splitAsBumpyMatrix works for sparse requests", {
     expect_identical(ref[,1], mat[,1])
     expect_identical(ref[1,], mat[1,])
 })
+
+test_that("unsplitAsDataFrame works as expected", {
+    o1 <- order(df$row, df$column, df$value)
+    ref <- df[o1,c("row", "column", "value")]
+
+    out <- unsplitAsDataFrame(mat)
+    out$column <- as.integer(out$column)
+    o2 <- order(out$row, out$column, out$value)
+    out <- out[o2,]
+
+    expect_identical(ref, out)
+
+    # Works as expected for sparse matrices.
+    sub <- df[1:100,]
+    smat <- splitAsBumpyMatrix(sub$value, sub$row, sub$column, sparse=TRUE)
+    sout <- unsplitAsDataFrame(smat)
+    sout$column <- as.integer(sout$column)
+    expect_identical(nrow(sout), 100L)
+    expect_true(all(sout %in% sub))
+    expect_true(all(sub %in% sout))
+
+    # Works as expected for DFs.
+    mat <- splitAsBumpyMatrix(DataFrame(X=df$value), df$row, df$column)
+    out2 <- unsplitAsDataFrame(mat)
+    expect_identical(ref$value, out2[o2,"X"])
+})
