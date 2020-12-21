@@ -272,3 +272,14 @@ test_that("BumpyMatrix lengths works as expected", {
     expect_equal(out2[4,], lengths(smat[4,]))
 })
 
+test_that("BumpyMatrix redim works as expected", {
+    out <- redim(undim(mat) > 0.5, mat)
+    expect_s4_class(out, "BumpyLogicalMatrix")
+    expect_identical(out, mat > 0.5)
+
+    # Also works for the sparse case.
+    out <- redim(undim(smat) > 0.5, smat)
+    expect_s4_class(out, "BumpyLogicalMatrix")
+    expect_identical(out, smat > 0.5)
+})
+

@@ -19,6 +19,8 @@
 \alias{t,BumpyMatrix-method}
 \alias{undim}
 \alias{undim,BumpyMatrix-method}
+\alias{redim}
+\alias{redim,CompressedList,BumpyMatrix-method}
 \alias{unlist,BumpyMatrix-method}
 \alias{lengths,BumpyMatrix-method}
 \title{The BumpyMatrix class}
@@ -85,12 +87,20 @@ This usually requires \code{i} to be a BumpyIntegerMatrix or a BumpyLogicalMatri
 though it is also possible to use a BumpyCharacterMatrix if each entry of \code{x} is named.
 }
 
-\section{Special compressed methods}{
+\section{Special CompressedList methods}{
 
 \code{undim(x)} will return the underlying \linkS4class{CompressedList} object.
 
+\code{redim(flesh, skeleton)} will create a BumpyMatrix object, given a CompressedList \code{flesh} and an existing BumpyMatrix object \code{skeleton}.
+\code{flesh} is assumed to be of the same length as \code{undim(skeleton)} where each entry in the former replaces the corresponding entry in the latter.
+The class of the output is determined based on the class of \code{flesh}.
+This method is analogous to the \code{\link{relist}} function for lists.
+
 \code{unlist(x, ...)} will return the underlying \linkS4class{Vector} used to create the \linkS4class{CompressedList} object.
 This is the same as \code{unlist(undim(x), ...)}.
+}
+
+\section{Other methods}{
 
 \code{lengths(x)} will return a numeric matrix-like object with the same dimensions and dimnames as \code{x},
 where each entry contains the length of the corresponding entry in \code{x}.
