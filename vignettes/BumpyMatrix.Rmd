@@ -168,7 +168,7 @@ var(out.x)[1:5,1:5] # matrix
 The exception is with operations that naturally produce a vector, in which case a matching 3-dimensional array is returned:
 
 ```{r}
-quantile(out.x)[,1:5,1:2]
+quantile(out.x)[1:5,1:5,]
 range(out.x)[1:5,1:5,]
 ```
 
