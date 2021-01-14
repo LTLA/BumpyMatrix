@@ -43,6 +43,8 @@
 #'
 #' \code{x[i,j] <- value} will replace the specified entries in \code{x} with the values in another BumpyMatrix \code{value}.
 #' It is expected that \code{value} is of the same subclass as \code{x}.
+#' \code{value} can also be a \link{CompressedList} of the same class as \code{undim(x)},
+#' in which case it is recycled to fill the specified entries.
 #'
 #' \code{t(x)} will transpose the BumpyMatrix, returning an object of the same type.
 #'
@@ -126,6 +128,7 @@
 #' [,BumpyMatrix,ANY-method
 #' [,BumpyMatrix,BumpyMatrix,ANY,ANY-method
 #' [,BumpyMatrix,BumpyMatrix-method
+#' [<-,BumpyMatrix,ANY,ANY,CompressedList-method
 #' [<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method
 #' dim,BumpyMatrix-method
 #' length,BumpyMatrix-method
@@ -293,6 +296,25 @@ setMethod("[", c("BumpyMatrix", "ANY", "ANY", "ANY"), function(x, i, j, ..., dro
 
 #' @export
 setMethod("[", c("BumpyMatrix", "BumpyMatrix"), .commat_by_commat)
+
+#' @export
+setReplaceMethod("[", c("BumpyMatrix", "ANY", "ANY", "CompressedList"), function(x, i, j, ..., value) {
+    new.dex <- length(x@data) + seq_along(value)
+
+    # Goddamn S4 subsetting doesn't dispatch on substituted missing arguments.
+    if (!missing(i) && !missing(j)) {
+        x@proxy[i,j] <- new.dex
+    } else if (!missing(i)) {
+        x@proxy[i,] <- new.dex
+    } else if (!missing(j)) {
+        x@proxy[,j] <- new.dex
+    } else {
+        x@proxy[] <- new.dex
+    }
+
+    x@data <- c(x@data, value)
+    .reorder_indices(x)
+})
 
 #' @export
 setReplaceMethod("[", c("BumpyMatrix", "ANY", "ANY", "BumpyMatrix"), function(x, i, j, ..., value) {

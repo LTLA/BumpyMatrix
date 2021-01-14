@@ -9,6 +9,7 @@
 \alias{[,BumpyMatrix,ANY-method}
 \alias{[,BumpyMatrix,BumpyMatrix,ANY,ANY-method}
 \alias{[,BumpyMatrix,BumpyMatrix-method}
+\alias{[<-,BumpyMatrix,ANY,ANY,CompressedList-method}
 \alias{[<-,BumpyMatrix,ANY,ANY,BumpyMatrix-method}
 \alias{dim,BumpyMatrix-method}
 \alias{length,BumpyMatrix-method}
@@ -71,6 +72,8 @@ a \linkS4class{CompressedList} of the appropriate type is instead returned.
 
 \code{x[i,j] <- value} will replace the specified entries in \code{x} with the values in another BumpyMatrix \code{value}.
 It is expected that \code{value} is of the same subclass as \code{x}.
+\code{value} can also be a \link{CompressedList} of the same class as \code{undim(x)},
+in which case it is recycled to fill the specified entries.
 
 \code{t(x)} will transpose the BumpyMatrix, returning an object of the same type.
 

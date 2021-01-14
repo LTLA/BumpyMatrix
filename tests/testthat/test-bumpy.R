@@ -192,6 +192,33 @@ test_that("BumpyMatrix subset replacement works as expected", {
     expect_identical(mod, smat)
 })
 
+test_that("BumpyMatrix subset replacement works with lists", {
+    mod <- mat
+    mod[,1] <- mod[,2]
+    expect_identical(mod[,1], mod[,2])
+
+    mod <- mat
+    mod[1,] <- mod[2,]
+    expect_identical(mod[1,], mod[2,])
+
+    mod <- mat
+    mod[1,1] <- mod[2,2]
+    expect_identical(mod[1,1], mod[2,2])
+
+    # Same stuff works in the sparse case.
+    mod <- smat
+    mod[,1] <- mod[,2]
+    expect_identical(mod[,1], mod[,2])
+
+    mod <- smat
+    mod[1,] <- mod[2,]
+    expect_identical(mod[1,], mod[2,])
+
+    mod <- smat
+    mod[1,1] <- mod[2,2,drop=FALSE]
+    expect_identical(mod[1,1], mod[2,2])
+})
+
 test_that("BumpyMatrix combining works as expected", {
     # rbind() works as expected.
     x2 <- NumericList(split(runif(10), factor(sample(8, 10, replace=TRUE), 1:8)))  

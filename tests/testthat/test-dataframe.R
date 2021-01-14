@@ -57,6 +57,14 @@ test_that("DF subset replacement works as expected", {
     copy[1,] <- copy[2,,drop=FALSE]
     expect_identical(copy[1,], copy[2,])
 
+    copy <- mat
+    copy[,4] <- copy[,3]
+    expect_identical(copy[,3], copy[,4])
+
+    copy <- mat
+    copy[1,] <- copy[2,]
+    expect_identical(copy[1,], copy[2,])
+
     # Now onto the behavior with 'k'.
     copy <- mat
     copy[,,'x'] <- copy[,,'x'] * 2
