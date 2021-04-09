@@ -57,7 +57,8 @@ unsplitAsDataFrame <- function(x, row.names=TRUE, column.names=TRUE, row.field="
 
     contents <- unlist(basic, use.names=FALSE)
     if (is(contents, "DataFrame")) {
-        output <- cbind(coords, contents)
+        # Using contents[,0] to preserve row names and any metadata.
+        output <- cbind(contents[,0], coords, contents)
     } else {
         output <- coords
         output[[value.field]] <- contents

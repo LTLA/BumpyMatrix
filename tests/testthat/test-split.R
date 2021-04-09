@@ -56,9 +56,29 @@ test_that("unsplitAsDataFrame works as expected", {
     expect_identical(nrow(sout), 100L)
     expect_true(all(sout %in% sub))
     expect_true(all(sub %in% sout))
+})
 
-    # Works as expected for DFs.
+test_that("unsplitAsDatFrame works for DFs", {
+    o1 <- order(df$row, df$column, df$value)
+    ref <- df[o1,c("row", "column", "value")]
+
     mat <- splitAsBumpyMatrix(DataFrame(X=df$value), df$row, df$column)
+    out <- unsplitAsDataFrame(mat)
+    out$column <- as.integer(out$column)
+
+    expect_identical(colnames(out)[3], "X")
+    colnames(out)[3] <- "value"
+    o2 <- order(out$row, out$column, out$value)
+    expect_identical(ref, out[o2,])
+
+    # Preserves any row names and metadata.
+    rownames(df) <- paste0("WHEE", seq_len(nrow(df)))
+    metadata(df)$X <- "Aaron"
+
+    mat <- splitAsBumpyMatrix(df[,"value",drop=FALSE], df$row, df$column)
     out2 <- unsplitAsDataFrame(mat)
-    expect_identical(ref$value, out2[o2,"X"])
+    out2$column <- as.integer(out2$column)
+
+    ref <- df[o1,c("row", "column", "value")]
+    expect_identical(ref, out2[o2,])
 })
