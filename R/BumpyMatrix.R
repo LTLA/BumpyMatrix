@@ -339,7 +339,7 @@ setReplaceMethod("[", c("BumpyMatrix", "ANY", "ANY", "BumpyMatrix"), function(x,
 setMethod("rbind", "BumpyMatrix", function(..., deparse.level=1) {
     args <- list(...)
     if (length(unique(vapply(args, ncol, 0L)))!=1L) {
-        stop("all objects in 'cbind(<BumpyMatrix>)' should have the same 'ncol'")
+        stop("all objects in 'rbind(<BumpyMatrix>)' should have the same 'ncol'")
     }
 
     combined <- reorder <- vector("list", length(args))
@@ -363,7 +363,7 @@ setMethod("rbind", "BumpyMatrix", function(..., deparse.level=1) {
 setMethod("cbind", "BumpyMatrix", function(..., deparse.level=1) {
     args <- list(...)
     if (length(unique(vapply(args, nrow, 0L)))!=1L) {
-        stop("all objects in 'rbind(<BumpyMatrix>)' should have the same 'nrow'")
+        stop("all objects in 'cbind(<BumpyMatrix>)' should have the same 'nrow'")
     }
 
     combined <- reorder <- vector("list", length(args))
